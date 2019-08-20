@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>LEGO Sequencer</title>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+    </head>
+
+    <body>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        {% block body %}{% endblock %}
+
+        <h1>LEGO Sequencer</h1>
+
+        <form action="{{ request.url }}" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file">
+            <input type="submit" value="Upload">
+
+            <a href="/">reset</a>
+        </form>
+
+        <div style="padding: 5px;">
+            {% if contents %}
+            <div class="brick_tray">
+                {% for row in contents %}<div class="brick_tile brick_{{ row.color }}">&nbsp;</div>{% endfor %}
+            </div>
+
+            <table class="reading">
+                <tr>
+                    <th>Time</th>
+                    <th>Value</th>
+                    <th>Color</th>
+                    <th>Base</th>
+                </tr>
+                {% for row in contents %}
+                    <tr>
+                        <td>{{ row.time }}</td>
+                        <td>{{ row.value }}</td>
+                        <td class="brick brick_{{ row.color }}">{{ row.color }}</td>
+                        <td>{{ row.base }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <div>Please upload a file for analysis</div>
+            {% endif %}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block script %}
+<script>
+$(document).ready(function() {
+    $("#query_ev3").click(function() {
+        $("#response").html("polling...");
+
+        fetch('/query_ev3')
+            .then(function(response) {
+                response.json().then(function (data) {
+                    console.log(data);
+
+                    const $tray = $("<div />").addClass("brick_tray");
+
+                    $tray.append(data.map(function (x) {
+                        return $('<div />')
+                            .addClass('brick_tile brick_' + x.color)
+                            .html('&nbsp;')
+                    }));
+
+                    $("#results_panel").append($tray);
+                });
+            });
+    });
+});
+</script>
+{% endblock %}
+
+
+{% block body %}
+<h1>LEGO Sequencer</h1>
+
+<div>
+    <button id="query_ev3">beep?</button>
+</div>
+
+<div id="results_panel" style="padding: 5px;">
+    <div class="brick_tray">
+        <div id="response">...</div>
+    </div>
+</div>
+{% endblock %}

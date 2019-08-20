@@ -1,0 +1,5 @@
+/__pycache__
+/.venv
+/uploads
+/blast_db
+/static/node_modules

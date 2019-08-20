@@ -1,0 +1,16 @@
+.reading td {
+    padding: 5px;
+}
+
+.brick { border: solid 1px gray; font-weight: bold; }
+
+.brick_tray { overflow: scroll; white-space: nowrap; }
+.brick_tile { width: 8px; height: 20px; display: inline-block; margin: 0px; border: solid 1px #ccc; }
+
+.brick_black { background-color: black; color: white; }
+.brick_blue { background-color: blue; color: white; }
+.brick_green { background-color: green; }
+.brick_yellow { background-color: yellow; }
+.brick_red { background-color: red; }
+.brick_white { background-color: white; }
+.brick_clear { background-color: #b2f3ff; }
