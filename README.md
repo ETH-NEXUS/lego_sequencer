@@ -6,6 +6,14 @@ To run this project, you'll need the following:
 
 - Python 3.5.3
 - A LEGO Mindstorms ev3 unit with Minipython installed
+
+To set up the webserver, run the following commands:
+
+```bash
+popd static
+npm install
+pushd
+```
   
 Follow these instructions to set up your device with rpyc
 - https://www.ev3dev.org/docs/tutorials/
