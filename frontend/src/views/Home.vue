@@ -18,6 +18,7 @@
       <h2>2. Scanning</h2>
       <div class="controls">
         <button class="btn btn-primary" @click="scan_bricks">scan bricks</button>
+        <button class="btn btn-danger" @click="clear_all">clear runs</button>
 
         <span class="status">
           <span v-if="brick_error" class="error"><b>Error:</b> {{ brick_error }}</span>
@@ -97,6 +98,11 @@ export default {
                     this.brick_error = `${resp}`;
                 })
         },
+        clear_all() {
+            if (confirm('Clear all entries?')) {
+                this.brick_runs = [];
+            }
+        },
         blast_sequence(sequence) {
             const bases = sequence.map(x => col_to_base[x.color]).join("");
             console.log("BLASTing ", sequence.map(x => x.color).join(", "), ", i.e.: ", bases);
@@ -115,22 +121,5 @@ export default {
 </script>
 
 <style scoped>
-.controls .btn { margin-right: 10px; }
-.step { margin-bottom: 2em; }
-.results { padding: 10px; border: dotted 1px #ccc; margin-top: 1em; border-radius: 3px; }
-.results .error { color: darkred; }
 
-.brick_run { display: flex; align-items: center; }
-.brick_run .blaster-btn { margin-right: 10px; }
-
-.brick_tray { display: flex; margin-bottom: 3px; }
-.brick { width: 20px; height: 20px; border: solid 1px #555; margin: 2px; }
-.brick_unknown { background-color: #aaa; }
-.brick_black { background-color: black; }
-.brick_blue { background-color: blue; }
-.brick_green { background-color: green; }
-.brick_yellow { background-color: yellow; }
-.brick_red { background-color: red; }
-.brick_white { background-color: white; }
-.brick_brown { background-color: brown; }
 </style>

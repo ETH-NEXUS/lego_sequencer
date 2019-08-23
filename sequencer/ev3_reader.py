@@ -7,7 +7,7 @@ from time import sleep
 
 COLORS = ('unknown', 'black', 'blue', 'green', 'yellow', 'red', 'white', 'brown')
 BRICK_DEG = 54
-NUM_BRICKS = 26
+NUM_BRICKS = 28
 
 # conn = rpyc.classic.connect('ev3dev.local')
 # ev3 = conn.modules['ev3dev.ev3']
@@ -36,11 +36,11 @@ def get_connection():
     raise FatalDisconnectException("Disconnected and ran out of reconnect attempts")
 
 
-def nudge(direction):
+def nudge(direction, amount=0.25):
     conn, ev3 = get_connection()
-    m = ev3.LargeMotor()
+    m = ev3.LargeMotor('outD')
 
-    nudge_amount = (BRICK_DEG if direction == 'right' else -BRICK_DEG) * 0.5
+    nudge_amount = (BRICK_DEG if direction == 'right' else -BRICK_DEG) * amount
     m.run_to_rel_pos(position_sp=nudge_amount, speed_sp=900, stop_action="hold")
 
     return {'msg': 'nudged %s degrees' % nudge_amount}
@@ -58,8 +58,10 @@ def query_sequencer():
     except FatalDisconnectException:
         return {'error': "Disconnected and couldn't recover the connection"}
 
-    m = ev3.LargeMotor()
+    m = ev3.LargeMotor('outD')
+    sign_m = ev3.Motor('outC')
     cl = ev3.ColorSensor()
+    lcd = ev3.Screen()
 
     # Put the color sensor into COL-COLOR mode.
     cl.mode = 'COL-COLOR'
@@ -69,16 +71,18 @@ def query_sequencer():
     counted_bricks = 0
     last_value = COLORS[cl.value()]
     for idx in range(NUM_BRICKS):
-        m.run_to_rel_pos(position_sp=-BRICK_DEG, speed_sp=200, stop_action="hold")
-        m.wait_while('running')
+        sleep(0.1)
 
-        # sleep(0.1)
+        sign_m.run_to_rel_pos(position_sp=180, speed_sp=900)
+
         readings.append({
             'brick_id': counted_bricks,
             'color': COLORS[cl.value()]
         })
         counted_bricks += 1
-        sleep(0.2)
+
+        m.run_to_rel_pos(position_sp=-BRICK_DEG, speed_sp=200, stop_action="hold")
+        m.wait_while('running')
 
     # rewind back to white
     m.run_to_rel_pos(position_sp=BRICK_DEG * NUM_BRICKS, speed_sp=900, stop_action="hold")

@@ -1,6 +1,7 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for,
-    jsonify
+    jsonify,
+    json
 )
 
 from sequencer import ev3_reader
@@ -18,7 +19,6 @@ BASE_MAPPING = {
 }
 
 
-
 @bp.route('/ping')
 def ping():
     return jsonify({'msg': 'pong!'})
@@ -33,16 +33,13 @@ def nudge(direction):
 def query_ev3():
     db = get_db()
 
-    if MOCK_COMM:
-        payload = jsonify(ev3_reader.query_sequencer_mock())
-    else:
-        payload = jsonify(ev3_reader.query_sequencer())
+    payload = ev3_reader.query_sequencer() if not MOCK_COMM else ev3_reader.query_sequencer_mock()
 
     # save it to the db before we proceed
-    db.execute('insert into sequences (sequence) values (?)', (payload.data,))
+    db.execute('insert into sequences (sequence) values (?)', (json.dumps(payload),))
     db.commit()
 
-    return payload
+    return jsonify(payload)
 
 
 @bp.route('/blast')
