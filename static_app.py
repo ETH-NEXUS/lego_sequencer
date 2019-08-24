@@ -4,7 +4,7 @@ import os
 from flask import Flask, render_template, flash, request, redirect, jsonify
 from werkzeug.utils import secure_filename
 
-from sequencer import ev3_reader
+from sequencer.support import ev3_reader
 from debugging.parsing import parse_raw
 
 UPLOAD_FOLDER = 'uploads'

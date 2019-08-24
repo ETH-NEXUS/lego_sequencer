@@ -5,6 +5,16 @@ import App from './App.vue'
 Vue.config.productionTip = false;
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './assets/main.css';
+
+// font-awesome stuff
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faUserSecret, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faUserSecret, faSpinner);
+
+Vue.component('fa-icon', FontAwesomeIcon);
 
 Vue.use(VueRouter);
 

@@ -4,7 +4,7 @@ from flask import Flask, render_template, jsonify
 
 app = Flask(__name__, static_folder="./frotend/dist", template_folder="./frontend/dist")
 
-from sequencer import ev3_reader
+from sequencer.support import ev3_reader
 
 
 @app.route('/query_ev3')

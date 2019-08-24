@@ -1,16 +1,19 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for,
-    jsonify,
-    json
+    Blueprint, request, jsonify,
+    json,
+    make_response,
+    Response,
+    stream_with_context
 )
 
-from sequencer import ev3_reader
+from sequencer.support import ev3_reader
 from sequencer.db import get_db
+from sequencer.support.ev3_reader import query_full_sequence
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
 
-MOCK_COMM = False
+MOCK_COMM = True
 BASE_MAPPING = {
     'green':  'A',
     'blue':   'C',
@@ -24,22 +27,52 @@ def ping():
     return jsonify({'msg': 'pong!'})
 
 
-@bp.route('/nudge/<direction>')
-def nudge(direction):
-    return jsonify(ev3_reader.nudge(direction))
+@bp.route('/nudge/<direction>', defaults={'amount': 1})
+@bp.route('/nudge/<direction>/<amount>')
+def nudge(direction, amount):
+    return jsonify(ev3_reader.nudge(direction, amount=float(amount)))
 
 
 @bp.route('/query_ev3')
 def query_ev3():
-    db = get_db()
 
-    payload = ev3_reader.query_sequencer() if not MOCK_COMM else ev3_reader.query_sequencer_mock()
+    def g():
+        db = get_db()
+        readings = []
 
-    # save it to the db before we proceed
-    db.execute('insert into sequences (sequence) values (?)', (json.dumps(payload),))
-    db.commit()
+        yield "["  # delimiters are for whoever's waiting for a full sequence
+        not_first = False
+        for row in query_full_sequence(mock=MOCK_COMM):
+            # delimit with commas
+            if not_first:
+                yield ','
+            not_first = True
 
-    return jsonify(payload)
+            readings.append(row)
+            yield json.dumps(row)
+
+        yield "]"
+
+        db.execute('insert into sequences (sequence) values (?)', (json.dumps(readings),))
+        db.commit()
+
+    try:
+        if request.args.get('streaming') == 'true':
+            return Response(stream_with_context(g()))
+        else:
+            o_db = get_db()
+            payload = list(query_full_sequence(mock=MOCK_COMM))
+            o_db.execute('insert into sequences (sequence) values (?)', (json.dumps(payload),))
+            o_db.commit()
+
+            return jsonify(payload)
+
+    except Exception as ex:
+        # raise ex
+        print(str(ex))
+        return make_response(jsonify({
+            'error': str(ex)
+        }), 500)
 
 
 @bp.route('/blast')
@@ -48,6 +81,8 @@ def blast():
         sequence = request.args['sequence']
     except KeyError:
         return jsonify({'error': 'must specify a sequence'})
+
+    # TODO: send the sequence, then wait for a response
 
     return jsonify({
         'response': sequence

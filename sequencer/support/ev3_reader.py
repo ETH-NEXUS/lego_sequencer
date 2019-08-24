@@ -9,6 +9,9 @@ COLORS = ('unknown', 'black', 'blue', 'green', 'yellow', 'red', 'white', 'brown'
 BRICK_DEG = 54
 NUM_BRICKS = 28
 
+# for mock communication, we can scale the time to make testing easier
+TIME_MOD = 0.1
+
 # conn = rpyc.classic.connect('ev3dev.local')
 # ev3 = conn.modules['ev3dev.ev3']
 g_conn = None
@@ -47,12 +50,6 @@ def nudge(direction, amount=1):
 
 
 def query_sequencer():
-    # every time we run it, start the connection
-    # FIXME: can we somehow reconnect if it's not available?
-
-    fail_count = 0
-    success = False
-
     try:
         conn, ev3 = get_connection()
     except FatalDisconnectException:
@@ -67,18 +64,18 @@ def query_sequencer():
     cl.mode = 'COL-COLOR'
 
     # start producing readings until we reach a white
-    readings = []
     counted_bricks = 0
     last_value = COLORS[cl.value()]
     for idx in range(NUM_BRICKS):
         sleep(0.1)
 
+        # spin the sign 180 degrees per read
         sign_m.run_to_rel_pos(position_sp=180, speed_sp=900)
 
-        readings.append({
+        yield {
             'brick_id': counted_bricks,
             'color': COLORS[cl.value()]
-        })
+        }
         counted_bricks += 1
 
         m.run_to_rel_pos(position_sp=-BRICK_DEG, speed_sp=200, stop_action="hold")
@@ -87,11 +84,8 @@ def query_sequencer():
     # rewind back to white
     m.run_to_rel_pos(position_sp=BRICK_DEG * NUM_BRICKS, speed_sp=900, stop_action="hold")
 
-    return readings
 
-
-def query_sequencer_mock(time_mod=1):
-    readings = []
+def query_sequencer_mock():
     counted_bricks = 0
     cl_value = 6 # white
     last_value = COLORS[cl_value]
@@ -100,16 +94,21 @@ def query_sequencer_mock(time_mod=1):
         cl_value = 6 if idx < 3 or idx >= NUM_BRICKS-3 else random.choice(range(2, 6))
         cl_color = COLORS[cl_value]
 
-        sleep(0.1 * time_mod)
+        sleep(0.1 * TIME_MOD)
 
         sys.stdout.write('%s?!\a\n' % cl_color)
         sys.stdout.flush()
 
-        readings.append({
+        yield {
             'brick_id': counted_bricks,
             'color': cl_color
-        })
+        }
         counted_bricks += 1
-        sleep(0.2 * time_mod)
+        sleep(0.2 * TIME_MOD)
 
-    return readings
+
+def query_full_sequence(mock=False):
+    seq_func = query_sequencer_mock if mock else query_sequencer
+
+    for x in seq_func():
+        yield x
