@@ -1,3 +1,4 @@
+import json
 import re
 from time import sleep, time
 
@@ -53,19 +54,27 @@ import requests
 # ===========================================================================
 
 
-def init_blast(sequence, database, program='blastn', timeout=None):
+# BLAST_URL = "https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi"
+BLAST_URL = "http://localhost:5000/api/mock_blast"
+
+
+def blast_sequence(sequence, database, program='blastn', timeout=None):
     """
-    Initiate a BLAST request against NCBI's servers, returning a result ID for polling.
+    Initiate a BLAST request against NCBI's servers, wait for result, then eventually return it.
 
     :param sequence: the query sequence, a string of (A,C,T,G)s
     :param database: a string identifying the database against which to run the query
     :param program: the program to use to execute the query, one of (megablast, blastn, blastp, rpsblast, blastx,
     tblastn, tblastx)
     :param timeout: time to wait in seconds (past the estimate) for a result before aborting, None will wait forever
-    :return: a result ID
+    :return: incremental status updates of the form {'status': <text>}, eventually ending in {'results': [...]}
     """
 
-    resp = requests.post('https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi', data={
+    # ------------------------------------------------------
+    # --- step 1. send initial request
+    # ------------------------------------------------------
+
+    resp = requests.post(BLAST_URL, data={
         'CMD': 'Put',
         'PROGRAM': program,
         'DATABASE': database,
@@ -82,9 +91,17 @@ def init_blast(sequence, database, program='blastn', timeout=None):
     except AttributeError:
         raise Exception("Unable to parse request id or completion time out of response")
 
-    print("Waiting %d seconds for results for %s to be done..." % (estimated_completion_secs, result_id))
+    # ------------------------------------------------------
+    # --- step 2. wait estimated time until we should check for response
+    # ------------------------------------------------------
+
+    yield {'status': "Waiting %d seconds for results for %s to be ready..." % (estimated_completion_secs, result_id)}
     sleep(estimated_completion_secs)
-    print("done, checking now.")
+    yield {'status': "...done waiting, checking now."}
+
+    # ------------------------------------------------------
+    # --- step 3. poll regularly for completion
+    # ------------------------------------------------------
 
     # establish timeout if it was specified
     end_time = time() + timeout if timeout else None
@@ -94,7 +111,7 @@ def init_blast(sequence, database, program='blastn', timeout=None):
             raise Exception("Timeout of %d seconds exceeded while waiting for results" % timeout)
 
         # poll for results using the result ID
-        resp = requests.get('https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi', params={
+        resp = requests.get(BLAST_URL, params={
             "CMD": "Get",
             "FORMAT_OBJECT": "SearchInfo",
             "RID": result_id
@@ -109,23 +126,27 @@ def init_blast(sequence, database, program='blastn', timeout=None):
         status = status_match.group(1)
 
         if status == 'WAITING':
-            print("Trying again in 5 seconds...")
+            yield {'status': "Not ready, trying again in 5 seconds..."}
             sleep(5)
             continue
         elif status == 'UNKNOWN':
             raise Exception("Search for %s expired, terminating" % result_id)
         elif status == 'READY':
-            print("Completed! Fetching results")
+            yield {'status': "Completed! Fetching results..."}
             break
         else:
-            print("No hits found")
+            yield {'status': "No hits found"}
             return None
 
+    # ------------------------------------------------------
+    # --- step 4. retrieve results
+    # ------------------------------------------------------
+
     # we're done waiting, fetch results and return them
-    resp = requests.get('https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi', params={
+    resp = requests.get(BLAST_URL, params={
         "CMD": "Get",
-        "FORMAT_TYPE": "Text",
+        "FORMAT_TYPE": "JSON2_S",
         "RID": result_id
     })
 
-    return resp.text
+    yield {'results': json.loads(resp.text)}

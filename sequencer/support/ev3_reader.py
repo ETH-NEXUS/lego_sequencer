@@ -1,7 +1,6 @@
 import random
 import socket
 import rpyc
-import sys
 
 from time import sleep
 
@@ -10,6 +9,7 @@ BRICK_DEG = 54
 NUM_BRICKS = 28
 
 # for mock communication, we can scale the time to make testing easier
+MOCK_COMM = True
 TIME_MOD = 0.1
 
 # conn = rpyc.classic.connect('ev3dev.local')
@@ -96,9 +96,6 @@ def query_sequencer_mock():
 
         sleep(0.1 * TIME_MOD)
 
-        sys.stdout.write('%s?!\a\n' % cl_color)
-        sys.stdout.flush()
-
         yield {
             'brick_id': counted_bricks,
             'color': cl_color
@@ -107,8 +104,8 @@ def query_sequencer_mock():
         sleep(0.2 * TIME_MOD)
 
 
-def query_full_sequence(mock=False):
-    seq_func = query_sequencer_mock if mock else query_sequencer
+def query_full_sequence():
+    seq_func = query_sequencer_mock if MOCK_COMM else query_sequencer
 
     for x in seq_func():
         yield x
