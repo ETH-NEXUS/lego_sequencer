@@ -13,7 +13,7 @@ from sequencer.support.ev3_reader import query_full_sequence
 bp = Blueprint('api', __name__, url_prefix='/api')
 
 
-MOCK_COMM = True
+MOCK_COMM = False
 BASE_MAPPING = {
     'green':  'A',
     'blue':   'C',
