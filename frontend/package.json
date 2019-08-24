@@ -13,7 +13,9 @@
     "@fortawesome/vue-fontawesome": "^0.1.6",
     "bootstrap": "^4.3.1",
     "core-js": "^2.6.5",
+    "lodash": "^4.17.15",
     "oboe": "^2.1.4",
+    "shortid": "^2.2.14",
     "vue": "^2.6.10",
     "vue-router": "^3.1.2"
   },

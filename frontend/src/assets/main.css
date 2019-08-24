@@ -1,5 +1,7 @@
 .controls { display: flex; align-items: center; }
 .controls .btn { margin-right: 10px; }
+
 .step { margin-bottom: 2em; }
-.results { padding: 10px; border: dotted 1px #ccc; margin-top: 1em; border-radius: 3px; }
+
+.results { padding: 10px; border: solid 1px #ccc; margin-right: 10px; margin-top: 1em; border-radius: 3px; }
 .results .error { color: darkred; }

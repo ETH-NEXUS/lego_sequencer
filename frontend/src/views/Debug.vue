@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import {handleErrors} from "../utils";
+
 export default {
     name: "Debug",
     data() {
@@ -40,6 +42,7 @@ export default {
         },
         nudge(direction, nudge_amount) {
             fetch(`http://localhost:5000/api/nudge/${direction}/${nudge_amount}`)
+                .then(handleErrors)
                 .then(response => response.json())
                 .then(data => {
                     this.response = data.msg;

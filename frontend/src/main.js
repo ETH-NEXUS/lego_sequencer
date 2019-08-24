@@ -9,10 +9,10 @@ import './assets/main.css';
 
 // font-awesome stuff
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUserSecret, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faUserSecret, faSpinner, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faUserSecret, faSpinner);
+library.add(faUserSecret, faSpinner, faTrash);
 
 Vue.component('fa-icon', FontAwesomeIcon);
 
