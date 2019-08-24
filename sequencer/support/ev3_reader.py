@@ -36,7 +36,7 @@ def get_connection():
     raise FatalDisconnectException("Disconnected and ran out of reconnect attempts")
 
 
-def nudge(direction, amount=0.25):
+def nudge(direction, amount=1):
     conn, ev3 = get_connection()
     m = ev3.LargeMotor('outD')
 
@@ -90,14 +90,14 @@ def query_sequencer():
     return readings
 
 
-def query_sequencer_mock(time_mod=0.1):
+def query_sequencer_mock(time_mod=1):
     readings = []
     counted_bricks = 0
     cl_value = 6 # white
     last_value = COLORS[cl_value]
     for idx in range(NUM_BRICKS):
         # m.run_to_rel_pos(position_sp=-BRICK_DEG, speed_sp=200, stop_action="hold")
-        cl_value = 6 if idx < 3 or idx == NUM_BRICKS-1 else random.choice(range(2, 6))
+        cl_value = 6 if idx < 3 or idx >= NUM_BRICKS-3 else random.choice(range(2, 6))
         cl_color = COLORS[cl_value]
 
         sleep(0.1 * time_mod)
