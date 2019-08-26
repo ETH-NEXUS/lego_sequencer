@@ -4,6 +4,8 @@ from time import sleep, time
 
 import requests
 
+from sequencer.cache import cache
+
 # above disclaimer copied from NCBI's web_blast.pl reference file.
 # code adapted to python3 by faisal alq.
 # ===========================================================================
@@ -53,9 +55,11 @@ import requests
 #
 # ===========================================================================
 
-
-# BLAST_URL = "https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi"
-BLAST_URL = "http://localhost:5000/api/mock_blast"
+from ..default_settings import MOCK_BLAST
+BLAST_URL = (
+    "https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi"
+    if not MOCK_BLAST else "http://localhost:5000/api/mock_blast"
+)
 
 
 def blast_sequence(sequence, database, program='blastn', timeout=None):
@@ -69,6 +73,14 @@ def blast_sequence(sequence, database, program='blastn', timeout=None):
     :param timeout: time to wait in seconds (past the estimate) for a result before aborting, None will wait forever
     :return: incremental status updates of the form {'status': <text>}, eventually ending in {'results': [...]}
     """
+
+    # # pre-step: check if we have it cached
+    cache_key = 'BLAST:%s_%s_%s' % (sequence, database, program)
+    cached_val = cache.get(cache_key)
+    if cached_val:
+        yield {'status': "Sequence found in cache, returning it."}
+        yield {'results': cached_val}
+        return
 
     # ------------------------------------------------------
     # --- step 1. send initial request
@@ -149,4 +161,9 @@ def blast_sequence(sequence, database, program='blastn', timeout=None):
         "RID": result_id
     })
 
-    yield {'results': json.loads(resp.text)}
+    # populate the cache with the results and return the result
+    parsed_result = json.loads(resp.text)
+    cache.set(cache_key, parsed_result)
+    # BLAST_CACHE[cache_key] = parsed_result
+
+    yield {'results': parsed_result}

@@ -1,37 +1,86 @@
 <template>
-  <div class="step">
-    <h2>2. BLAST Results</h2>
-
+  <div>
     <div v-if="sequence" class="sequence_tray list-group-item">
-        <span><b>Sequence:</b> {{ sequence }}</span>
-        <button class="btn btn-primary" @click="blast_sequence(sequence)" :disabled="blast_pending">Run BLAST</button>
-    </div>
-
-    <div class="container-fluid" v-if="blast_status || blast_hits">
-      <div class="row">
-        <div class="col md-6 status_pane">
-          <h5>Status:</h5>
-          <ol>
-            <li v-for="(rec, idx) in blast_status">
-              {{ rec.status }}
-              <fa-icon v-if="blast_pending && idx === blast_status.length - 1" icon="spinner" pulse />
-            </li>
-          </ol>
-        </div>
-
-        <div class="col md-6 results_pane">
-          <div v-if="blast_result">
-            <h5>Hits:</h5>
-            <ul>
-              <li v-for="hit in blast_unique_hits">
-                {{ hit.sciname }} (score: {{ hit.score }})
-              </li>
-            </ul>
-          </div>
-        </div>
+      <div v-for="(letter, idx) in sequence" :key="idx" class="translated_tile align-middle">
+        {{ letter }}
       </div>
 
+      <button class="btn btn-primary" @click="blast_sequence(sequence)" :disabled="blast_pending" style="white-space: nowrap;">
+        <span v-if="blast_pending">
+          <fa-icon icon="circle-notch" spin />
+          Running BLAST...
+        </span>
+        <span v-else>{{ blast_result ? 'Re-run' : 'Run'}} BLAST</span>
+      </button>
     </div>
+
+    <div v-if="blast_status || blast_hits">
+      <div class="status_pane">
+        <h4>Status:</h4>
+
+        <transition-group name="slideright" tag="ol">
+          <li v-for="(rec, idx) in blast_status" :key="idx">
+            {{ rec.status }}
+            <fa-icon v-if="blast_pending && idx === blast_status.length - 1" icon="spinner" pulse />
+          </li>
+        </transition-group>
+      </div>
+
+      <div class="results_pane">
+        <transition name="slideup">
+          <div v-if="blast_result">
+            <h3 style="text-align: left;">Hits:</h3>
+            <hr />
+
+            <div v-if="blast_first_five.length > 0" class="species-tiles">
+              <div class="species-tile" v-for="hit in blast_first_five" :key="hit.sciname">
+                <SpeciesResult :species="hit.sciname" :score="hit.score" :payload="hit.payload" v-on:show-details="show_details" />
+              </div>
+            </div>
+            <div v-else class="no-results">
+                No matching species found! <fa-icon icon="sad-cry" />
+                <br />
+                Try again with another sequence!
+            </div>
+          </div>
+        </transition>
+      </div>
+    </div>
+
+    <Sidebar ref="sidedar">
+      <template v-slot:default="data">
+        <div v-for="(hit, idx) in data.hit.payload.hsps" class="hit-data">
+          <h4 v-if="data.hit.payload.hsps.length > 1">Hit #{{ (idx+1) }}</h4>
+
+          <div class="sec">
+            <h3>Score:</h3>
+            <div class="value">{{ hit.score }}</div>
+          </div>
+
+          <div class="sec">
+            <h3>Query/Hit Strand:</h3>
+            <div class="value">{{ hit.query_strand }} / {{ hit.hit_strand }}</div>
+          </div>
+
+          <div class="sec">
+            <h3>Alignment:</h3>
+
+            <div class="value">
+              <div class="mini-sec">
+                <b>Length:</b><br />{{ hit.align_len }}
+              </div>
+
+              <div class="mini-sec"><b>Bases:</b>
+                <div class="alignment">{{ hit.qseq }}
+{{ hit.midline }}
+{{ hit.hseq }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </Sidebar>
   </div>
 </template>
 
@@ -39,9 +88,12 @@
 import * as oboe from 'oboe';
 import uniqBy from "lodash/uniqBy";
 import {col_to_base} from "../constants";
+import SpeciesResult from "./SpeciesResult";
+import Sidebar from "./Sidebar";
 
 export default {
     name: "Blaster",
+    components: {Sidebar, SpeciesResult},
     props: { sequence: { type: String, required: false } },
     data() {
         return {
@@ -49,6 +101,11 @@ export default {
             blast_status: null,
             blast_result: null,
         };
+    },
+    mounted() {
+        if (this.sequence) {
+            this.blast_sequence(this.sequence);
+        }
     },
     computed: {
         blast_hits() {
@@ -58,7 +115,8 @@ export default {
             return (
                 this.blast_result.data.BlastOutput2[0].report.results.search.hits.map(hit => ({
                     sciname: hit.description[0].sciname,
-                    score: hit.hsps[0].score
+                    score: hit.hsps[0].score,
+                    payload: hit
                 }))
             )
         },
@@ -67,6 +125,9 @@ export default {
                 return null;
 
             return uniqBy(this.blast_hits, x => x.sciname);
+        },
+        blast_first_five() {
+            return this.blast_unique_hits.slice(0, 6);
         }
     },
     methods: {
@@ -94,10 +155,15 @@ export default {
                 })
                 .done(() => {
                     this.blast_pending = false;
+                    this.$emit('results-displayed');
                 })
                 .fail(err => {
-                    this.blast_status.push(err)
+                    this.blast_status.push({'status': "Error occurred during request, terminated."});
+                    this.blast_pending = false;
                 })
+        },
+        show_details(options) {
+          this.$refs.sidedar.showModal(options);
         }
     }
 }
@@ -117,7 +183,36 @@ export default {
   padding: 10px;
 }
 .status_pane {
-  border: solid 1px #ccc; border-radius: 5px;
+  text-align: left;
+  font-size: 20px;
+  /*border: solid 1px #ccc; border-radius: 5px;*/
 }
 
+.species-tiles {
+  display: flex; flex-wrap: wrap; justify-content: space-around;
+}
+.species-tile {
+  margin: 10px 0 10px 0;
+}
+
+.no-results {
+  background-color: #eee;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 24px; font-style: italic;
+  color: #777;
+  text-align: center;
+}
+
+.sec { margin-bottom: 10px; }
+.sec .value { margin-left: 10px; }
+.mini-sec {
+  margin-bottom: 5px;
+}
+
+.alignment {
+  font-family: monospace;
+  white-space: pre;
+  overflow-x: scroll;
+}
 </style>

@@ -5,3 +5,100 @@
 
 .results { padding: 10px; border: solid 1px #ccc; margin-right: 10px; margin-top: 1em; border-radius: 3px; }
 .results .error { color: darkred; }
+
+/* brick/translation tray and item styles */
+.brick_tray {
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px; border: solid 1px #ccc;
+  border-radius: 3px;
+  margin: 20px 0;
+}
+
+.brick_img {
+  margin-right: 3px;
+  margin-bottom: 5px;
+  background-color: #777;
+  border-radius: 5px;
+  padding: 5px;
+  vertical-align: bottom;
+}
+
+.translated_tile {
+  width: 35px;
+  height: 35px;
+  margin-right: 3px;
+  background-color: #eee;
+  border-radius: 5px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* shake animation */
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(0, -4px, 0);
+  }
+
+  20%, 80% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(0, -4px, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(0, 4px, 0);
+  }
+}
+
+/* bouncy animation, e.g. for incoming brick reads */
+.bouncy-item {
+}
+.bouncy-enter-active {
+  animation: bounce-in .5s;
+}
+.bouncy-leave-active {
+  animation: bounce-in .5s reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* slide in from right animations, e.g. for status reports */
+.slideright-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+.slideright-enter-active, .slideright-leave-active {
+  transition: all 300ms;
+}
+.slideright-enter, .slideright-leave-to /* .list-leave-active below version 2.1.8 */ {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* slide up animations, e.g. for translation bits entering */
+.slideup-item {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.slideup-enter-active, .slideup-leave-active {
+  transition: all 1s;
+}
+.slideup-enter, .slideup-leave-to /* .list-leave-active below version 2.1.8 */ {
+  opacity: 0;
+  transform: translateY(30px);
+}

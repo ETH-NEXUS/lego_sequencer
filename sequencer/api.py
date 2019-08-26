@@ -1,5 +1,8 @@
 import random
+from time import sleep
 from uuid import uuid4
+
+import requests
 
 from flask import (
     Blueprint, request, jsonify,
@@ -10,12 +13,29 @@ from flask import (
     send_file
 )
 
+from sequencer import cache
+from sequencer.default_settings import MOCK_BLAST_HAS_RESULTS
 from sequencer.support import ev3_reader
 from sequencer.db import get_db
 from sequencer.support.blaster import blast_sequence
 from sequencer.support.ev3_reader import query_full_sequence
 
-bp = Blueprint('api', __name__, url_prefix='/api')
+GCE_KEY = None
+GCE_PROJECT_CX = None
+
+
+class APIBlueprint(Blueprint):
+    def register(self, app, options, first_registration=False):
+        global GCE_KEY, GCE_PROJECT_CX
+
+        config = app.config
+        GCE_KEY = config.get('GCE_KEY')
+        GCE_PROJECT_CX = config.get('GCE_PROJECT_CX')
+
+        super(APIBlueprint, self).register(app, options, first_registration)
+
+
+bp = APIBlueprint('api', __name__, url_prefix='/api')
 
 BASE_MAPPING = {
     'green':  'A',
@@ -38,6 +58,7 @@ def nudge(direction, amount):
 
 @bp.route('/query_ev3')
 def query_ev3():
+    username = request.args.get('username', 'anonymous')
 
     def g():
         db = get_db()
@@ -56,7 +77,7 @@ def query_ev3():
 
         yield "]"
 
-        db.execute('insert into sequences (sequence) values (?)', (json.dumps(readings),))
+        db.execute('insert into sequences (username, sequence) values (?, ?)', (username, json.dumps(readings),))
         db.commit()
 
     try:
@@ -65,7 +86,7 @@ def query_ev3():
         else:
             o_db = get_db()
             payload = list(query_full_sequence())
-            o_db.execute('insert into sequences (sequence) values (?)', (json.dumps(payload),))
+            o_db.execute('insert into sequences (username, sequence) values (?, ?)', (username, json.dumps(payload),))
             o_db.commit()
 
             return jsonify(payload)
@@ -133,4 +154,32 @@ def mock_blast():
             return Response("""hello!""")
 
         elif arg_set.get('FORMAT_TYPE') == 'JSON2_S':
-            return send_file("mockdata/canned_blast.json")
+            return send_file("mockdata/canned_blast.json") if MOCK_BLAST_HAS_RESULTS else send_file("mockdata/canned_blast_noresults.json")
+
+
+@bp.route('/species_img')
+def species_img():
+    species_name = request.args.get('species')
+
+    cache_key = 'SPECIES_IMG:%s' % species_name
+    cached_val = cache.get(cache_key)
+
+    if not cached_val:
+        resp = requests.get('https://www.googleapis.com/customsearch/v1/siterestrict', params={
+            "key": GCE_KEY,
+            "cx": GCE_PROJECT_CX,
+            "safe": "high",
+            "fileType": "png|jpg|gif",
+            "imgType": "photo",
+            "searchType": "image",
+            "limit": 1,
+            "q": species_name
+        })
+        result = resp.json()
+
+        cached_val = [x['link'] for x in result['items']]
+        cache.set(cache_key, cached_val)
+
+    return jsonify({
+        'results': cached_val
+    })
