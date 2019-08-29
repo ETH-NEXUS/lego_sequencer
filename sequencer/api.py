@@ -14,14 +14,15 @@ from flask import (
 )
 
 from sequencer import cache
-from sequencer.default_settings import MOCK_BLAST_HAS_RESULTS
+from sequencer.default_settings import MOCK_BLAST_HAS_RESULTS, USE_GIS_CACHING, BLAST_TIMEOUT
 from sequencer.support import ev3_reader
 from sequencer.db import get_db
-from sequencer.support.blaster import blast_sequence
+from sequencer.support.blaster import blast_sequence, blast_sequence_local
 from sequencer.support.ev3_reader import query_full_sequence
 
 GCE_KEY = None
 GCE_PROJECT_CX = None
+BLAST_DB_DIR = None
 
 
 class APIBlueprint(Blueprint):
@@ -31,6 +32,7 @@ class APIBlueprint(Blueprint):
         config = app.config
         GCE_KEY = config.get('GCE_KEY')
         GCE_PROJECT_CX = config.get('GCE_PROJECT_CX')
+        BLAST_DB_DIR = config.get('BLAST_DB_DIR')
 
         super(APIBlueprint, self).register(app, options, first_registration)
 
@@ -49,6 +51,10 @@ BASE_MAPPING = {
 def ping():
     return jsonify({'msg': 'pong!'})
 
+
+# ------------------------------------------------------
+# --- LEGO Brick Comm.
+# ------------------------------------------------------
 
 @bp.route('/nudge/<direction>', defaults={'amount': 1})
 @bp.route('/nudge/<direction>/<amount>')
@@ -99,6 +105,10 @@ def query_ev3():
         }), 500)
 
 
+# ------------------------------------------------------
+# --- BLAST proxy
+# ------------------------------------------------------
+
 @bp.route('/blast')
 def blast():
     try:
@@ -107,7 +117,7 @@ def blast():
         return jsonify({'error': 'must specify a sequence'})
 
     def g():
-        gen = blast_sequence(sequence, "nr")
+        gen = blast_sequence(sequence, timeout=BLAST_TIMEOUT)
         not_first = False
         yield "["
         for rec in gen:
@@ -120,6 +130,65 @@ def blast():
     # incrementally yields json objects
     return Response(stream_with_context(g()))
 
+
+@bp.route('/local_blast')
+def local_blast():
+    try:
+        sequence = request.args['sequence']
+    except KeyError:
+        return jsonify({'error': 'must specify a sequence'})
+
+    def g():
+        gen = blast_sequence_local(sequence, blast_db_dir=BLAST_DB_DIR)
+        not_first = False
+        yield "["
+        for rec in gen:
+            if not_first:
+                yield ","
+            not_first = True
+            yield json.dumps(rec)
+        yield "]"
+
+    # incrementally yields json objects
+    return Response(stream_with_context(g()))
+
+
+# ------------------------------------------------------
+# --- GIS species images
+# ------------------------------------------------------
+
+@bp.route('/species_img')
+def species_img():
+    species_name = request.args.get('species')
+    # species_name = "Homo sapiens"
+
+    cache_key = 'SPECIES_IMG:%s' % species_name
+    cached_val = cache.get(cache_key) if USE_GIS_CACHING else None
+
+    if not cached_val:
+        resp = requests.get('https://www.googleapis.com/customsearch/v1/siterestrict', params={
+            "key": GCE_KEY,
+            "cx": GCE_PROJECT_CX,
+            "safe": "high",
+            "fileType": "png|jpg|gif",
+            "imgType": "photo",
+            "searchType": "image",
+            "limit": 1,
+            "q": species_name
+        })
+        result = resp.json()
+
+        cached_val = [x['link'] for x in result['items']]
+        cache.set(cache_key, cached_val)
+
+    return jsonify({
+        'results': cached_val
+    })
+
+
+# ------------------------------------------------------
+# --- mocked endpoints
+# ------------------------------------------------------
 
 @bp.route('/mock_blast', methods=['GET','POST'])
 def mock_blast():
@@ -156,30 +225,3 @@ def mock_blast():
         elif arg_set.get('FORMAT_TYPE') == 'JSON2_S':
             return send_file("mockdata/canned_blast.json") if MOCK_BLAST_HAS_RESULTS else send_file("mockdata/canned_blast_noresults.json")
 
-
-@bp.route('/species_img')
-def species_img():
-    species_name = request.args.get('species')
-
-    cache_key = 'SPECIES_IMG:%s' % species_name
-    cached_val = cache.get(cache_key)
-
-    if not cached_val:
-        resp = requests.get('https://www.googleapis.com/customsearch/v1/siterestrict', params={
-            "key": GCE_KEY,
-            "cx": GCE_PROJECT_CX,
-            "safe": "high",
-            "fileType": "png|jpg|gif",
-            "imgType": "photo",
-            "searchType": "image",
-            "limit": 1,
-            "q": species_name
-        })
-        result = resp.json()
-
-        cached_val = [x['link'] for x in result['items']]
-        cache.set(cache_key, cached_val)
-
-    return jsonify({
-        'results': cached_val
-    })

@@ -102,3 +102,16 @@
   opacity: 0;
   transform: translateY(30px);
 }
+
+/* faster version of the slideup animation */
+.slideup_fast-item {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.slideup_fast-enter-active, .slideup_fast-leave-active {
+  transition: all 200s;
+}
+.slideup_fast-enter, .slideup_fast-leave-to /* .list-leave-active below version 2.1.8 */ {
+  opacity: 0;
+  transform: translateY(30px);
+}

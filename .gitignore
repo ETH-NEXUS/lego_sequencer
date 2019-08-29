@@ -1,6 +1,7 @@
 /__pycache__
 *.pyc
 /.venv
+/logs
 /uploads
 /blast_db
 /static/node_modules

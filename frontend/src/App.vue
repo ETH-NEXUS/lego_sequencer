@@ -19,9 +19,11 @@
             <router-link to="/debug" class="nav-link" tag="a">Debug</router-link>
           </li>
 
+          <!--
           <li class="nav-item">
             <router-link to="/designer" class="nav-link" tag="a">Designer</router-link>
           </li>
+          -->
         </ul>
       </div>
     </nav>

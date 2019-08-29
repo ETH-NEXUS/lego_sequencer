@@ -9,7 +9,8 @@
     <div class="card-body">
       <h5 class="card-title">{{ species }}</h5>
       <p class="card-text">Score: {{ score }}</p>
-      <a href="#" @click.stop="show_details" class="btn btn-primary">Details</a>
+      <a href="#" @click.stop="show_details" class="btn btn-primary">Details</a>&nbsp;
+      <a :href="gsearch_url" target="_blank" class="btn btn-success">Search <fa-icon icon="external-link-alt" /></a>
     </div>
   </div>
 </template>
@@ -27,6 +28,11 @@ export default {
             species_url: null,
             loading: false,
             error: null
+        }
+    },
+    computed: {
+        gsearch_url() {
+            return `https://www.google.com/search?safe=active&q=%22${this.species}%22`;
         }
     },
     mounted() {

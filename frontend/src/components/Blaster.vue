@@ -14,22 +14,25 @@
       </button>
     </div>
 
-    <div v-if="blast_status || blast_hits">
-      <div class="status_pane">
-        <h4>Status:</h4>
+    <div v-if="blast_status || blast_hits" class="status_and_results">
+      <transition-group name="slideup" mode="out-in">
 
-        <transition-group name="slideright" tag="ol">
-          <li v-for="(rec, idx) in blast_status" :key="idx">
-            {{ rec.status }}
-            <fa-icon v-if="blast_pending && idx === blast_status.length - 1" icon="spinner" pulse />
-          </li>
-        </transition-group>
-      </div>
+        <div class="status_pane" key="status_pane" v-if="!blast_result || !blast_first_five || blast_first_five.length <= 0">
+          <h4>Status:</h4>
 
-      <div class="results_pane">
-        <transition name="slideup">
-          <div v-if="blast_result">
-            <h3 style="text-align: left;">Hits:</h3>
+          <div class="status_scroller" ref="status_scroller">
+            <transition-group name="slideright" tag="ol">
+              <li v-for="(rec, idx) in blast_status" :key="idx">
+                {{ rec.status }}
+                <fa-icon v-if="blast_pending && idx === blast_status.length - 1" icon="circle-notch" spin />
+              </li>
+            </transition-group>
+            </div>
+        </div>
+
+        <div class="results_pane" key="results_pane" v-if="blast_result">
+          <div>
+            <h3 style="text-align: left;">Hits ({{ blast_first_five.length }}):</h3>
             <hr />
 
             <div v-if="blast_first_five.length > 0" class="species-tiles">
@@ -38,13 +41,14 @@
               </div>
             </div>
             <div v-else class="no-results">
-                No matching species found! <fa-icon icon="sad-cry" />
-                <br />
-                Try again with another sequence!
+              No matching species found.
+              <br />
+              Try again with another sequence!
             </div>
           </div>
-        </transition>
-      </div>
+        </div>
+
+      </transition-group>
     </div>
 
     <Sidebar ref="sidedar">
@@ -72,8 +76,8 @@
 
               <div class="mini-sec"><b>Bases:</b>
                 <div class="alignment">{{ hit.qseq }}
-{{ hit.midline }}
-{{ hit.hseq }}
+                  {{ hit.midline }}
+                  {{ hit.hseq }}
                 </div>
               </div>
             </div>
@@ -87,6 +91,7 @@
 <script>
 import * as oboe from 'oboe';
 import uniqBy from "lodash/uniqBy";
+import countBy from "lodash/countBy";
 import {col_to_base} from "../constants";
 import SpeciesResult from "./SpeciesResult";
 import Sidebar from "./Sidebar";
@@ -127,6 +132,8 @@ export default {
             return uniqBy(this.blast_hits, x => x.sciname);
         },
         blast_first_five() {
+            if (!this.blast_unique_hits)
+                return null;
             return this.blast_unique_hits.slice(0, 6);
         }
     },
@@ -144,7 +151,13 @@ export default {
                 })
                 .node('!.{status}', rec => {
                     console.log(rec);
-                    this.blast_status.push(rec)
+                    this.blast_status.push(rec);
+                    const status_scroller = this.$refs.status_scroller;
+                    if (status_scroller) {
+                        setTimeout(() => {
+                          status_scroller.scrollTop = status_scroller.scrollHeight;
+                        }, 10);
+                    }
                 })
                 .node('!.{results}', rec => {
                     console.log("Done: ", rec);
@@ -163,7 +176,7 @@ export default {
                 })
         },
         show_details(options) {
-          this.$refs.sidedar.showModal(options);
+            this.$refs.sidedar.showModal(options);
         }
     }
 }
@@ -186,6 +199,10 @@ export default {
   text-align: left;
   font-size: 20px;
   /*border: solid 1px #ccc; border-radius: 5px;*/
+}
+.status_pane .status_scroller {
+  max-height: 6.5em;
+  overflow-y: auto;
 }
 
 .species-tiles {

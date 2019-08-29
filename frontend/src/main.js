@@ -17,11 +17,11 @@ import './assets/modal-sidebar.css';
 // font-awesome stuff
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
-  faUserSecret, faSpinner, faTrash, faCircleNotch, faAngleDoubleDown, faQuestion, faSadCry
+  faUserSecret, faSpinner, faTrash, faCircleNotch, faAngleDoubleDown, faQuestion, faSadCry, faExternalLinkAlt
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faUserSecret, faSpinner, faTrash, faCircleNotch, faAngleDoubleDown, faQuestion, faSadCry);
+library.add(faUserSecret, faSpinner, faTrash, faCircleNotch, faAngleDoubleDown, faQuestion, faSadCry, faExternalLinkAlt);
 
 Vue.component('fa-icon', FontAwesomeIcon);
 
