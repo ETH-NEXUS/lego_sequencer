@@ -1,10 +1,10 @@
 import json
+import os
 import re
 from io import StringIO
 from time import sleep, time
 
 import requests
-import pyblast
 
 from sequencer.cache import cache
 
@@ -57,17 +57,20 @@ from sequencer.cache import cache
 #
 # ===========================================================================
 
-from ..default_settings import MOCK_BLAST, USE_BLAST_CACHING
+from ..default_settings import MOCK_BLAST, USE_BLAST_CACHING, MIN_POLL_DELAY_SECS
 
 BLAST_URL = (
     "https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi"
     if not MOCK_BLAST else "http://localhost:5000/api/mock_blast"
 )
 
+LOG_STEPS = True
+LOG_TEMPLATE = os.path.join('logs', 'seq_%(seq)s_%(id)s-%(step)s.html')
+
 
 def blast_sequence_local(sequence, blast_db_dir):
     fp = StringIO(sequence)
-    pyblast.blastn(fp, db=blast_db_dir)
+    # pyblast.blastn(fp, db=blast_db_dir)
 
 
 def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
@@ -90,6 +93,16 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
         yield {'results': cached_val}
         return
 
+    # if it LOG_STEPS is enabled it saves each step in the seq query for posterity
+    step_idx = 1
+
+    def log_step(this_resp, step):
+        nonlocal step_idx
+        if LOG_STEPS:
+            with open(LOG_TEMPLATE % {'seq': sequence, 'id': step_idx, 'step': step}, 'wb') as fp:
+                fp.write(this_resp.content)
+                step_idx += 1
+
     # ------------------------------------------------------
     # --- step 1. send initial request
     # ------------------------------------------------------
@@ -111,11 +124,11 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
         'QUERY': sequence,
 
         'WORD_SIZE': '7',
-        'EXPECT': '10000',
+        'EXPECT': '1000',
         'HITLIST_SIZE': '100',
         'MATCH_SCORES': '1,-3',
         'NUCL_REWARD': '1',
-        'NUCL_PENALTY': '-2',
+        'NUCL_PENALTY': '-3',
         'GAPCOSTS': '5 2',
 
         'FILTER': 'F'
@@ -126,6 +139,7 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
         # params['MEGABLAST'] = 'on'
 
     resp = requests.post(BLAST_URL, data=params)
+    log_step(resp, 'init')
 
     # parse out result id, estimated time to completion
     result_id_match = re.search(r'^ {4}RID = (.*$)', resp.text, flags=re.MULTILINE)
@@ -141,7 +155,10 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
     # --- step 2. wait estimated time until we should check for response
     # ------------------------------------------------------
 
-    yield {'status': "Waiting %d seconds for results for %s to be ready..." % (estimated_completion_secs, result_id)}
+    yield {
+        'status': "Waiting %d seconds for results for %s to be ready..." % (estimated_completion_secs, result_id),
+        'job_id': result_id
+    }
     sleep(estimated_completion_secs)
     yield {'status': "...done waiting, checking now."}
 
@@ -153,8 +170,11 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
     total_wait = estimated_completion_secs
     # establish timeout if it was specified
     end_time = time() + timeout if timeout else None
+    status_idx = 0
 
     while True:
+        status_idx += 1
+
         # if end_time and time() > end_time:
         #     yield {"status": "Timeout of %d seconds reached while waiting for results" % timeout}
         #     return None
@@ -165,6 +185,7 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
             "FORMAT_OBJECT": "SearchInfo",
             "RID": result_id
         })
+        log_step(resp, 'status_%d' % status_idx)
 
         # parse out the status
         status_match = re.search(r'\s+Status=([A-Z]+)', resp.text, flags=re.MULTILINE)
@@ -176,8 +197,8 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
 
         if status == 'WAITING':
             # parse out the estimated wait time ("updated in 12 seconds")
-            parsed_wait_time = result_id_match = re.search(r'updated in <b>(.+)</b> seconds', resp.text, flags=re.MULTILINE)
-            wait_time = int(parsed_wait_time.group(1)) if parsed_wait_time else 5
+            parsed_wait_time = re.search(r'updated in <b>(.+)</b> seconds', resp.text, flags=re.MULTILINE)
+            wait_time = max(int(parsed_wait_time.group(1)) if parsed_wait_time else 5, MIN_POLL_DELAY_SECS)
 
             if total_wait + wait_time > timeout:
                 yield {"status": "Timeout of %d seconds reached while waiting for results" % timeout}
@@ -187,11 +208,14 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
             total_wait += wait_time
             sleep(wait_time)
             continue
+
         elif status == 'UNKNOWN':
             raise Exception("Search for %s expired, terminating" % result_id)
+
         elif status == 'READY':
             yield {'status': "Completed! Fetching results..."}
             break
+
         else:
             yield {'status': "No hits found"}
             return None
@@ -206,6 +230,7 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
         "FORMAT_TYPE": "JSON2_S",
         "RID": result_id
     })
+    log_step(resp, 'result')
 
     # populate the cache with the results and return the result
     parsed_result = json.loads(resp.text)

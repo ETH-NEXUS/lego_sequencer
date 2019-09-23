@@ -4,7 +4,7 @@
 
 # if true, mocks communication with the LEGO brick, producing sequences from real organisms
 # (see support.ev3_reader.SAMPLE_SEQUENCES for details)
-MOCK_COMM = False
+MOCK_COMM = True
 
 # if MOCK_COMM=True, the mock process duration is multiplied by this value (>1.0 slower, <1.0 faster)
 TIME_MOD = 0.1
@@ -21,12 +21,21 @@ USE_RANDOM_SEQ = True
 # time in seconds before the BLAST request times out, never if None
 BLAST_TIMEOUT = 120
 
+# minimum time in seconds between re-checking polls, since BLAST will occasionally return tiny values like 2 seconds
+# set to 0 to disable the minimum
+MIN_POLL_DELAY_SECS = 0
+
 # if true, mocks the NCBI blast request process and returns a canned result
 MOCK_BLAST = False
 
 # if MOCK_BLAST and MOCK_BLAST_HAS_RESULTS are true, returns a canned file with hits;
 # otherwise, returns a canned file with no hits
 MOCK_BLAST_HAS_RESULTS = True
+
+# if true, expects taxon data from the taxdump file (obtained from ftp://ftp.ncbi.nih.gov/pub/taxonomy/) to be
+# extracted to a folder named ./data, and loads taxon info from those files into Taxon and TaxonName.
+# the taxon data is currently unused, so it's recommended to leave this flag as false.
+LOAD_TAXON_DATA = False
 
 
 # -----------------------------------

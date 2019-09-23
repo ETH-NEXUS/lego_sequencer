@@ -16,7 +16,8 @@ from flask import (
 from sequencer import cache
 from sequencer.default_settings import MOCK_BLAST_HAS_RESULTS, USE_GIS_CACHING, BLAST_TIMEOUT
 from sequencer.support import ev3_reader
-from sequencer.db import get_db
+from sequencer.db import db
+from sequencer.models import Sequence, TaxonNames
 from sequencer.support.blaster import blast_sequence, blast_sequence_local
 from sequencer.support.ev3_reader import query_full_sequence
 
@@ -66,8 +67,13 @@ def nudge(direction, amount):
 def query_ev3():
     username = request.args.get('username', 'anonymous')
 
+    def save_to_db(uname, sequence):
+        candidate = Sequence(username=uname, sequence=sequence)
+        db.session.add(candidate)
+        db.session.commit()
+        return candidate.id
+
     def g():
-        db = get_db()
         readings = []
 
         yield "["  # delimiters are for whoever's waiting for a full sequence
@@ -81,19 +87,17 @@ def query_ev3():
             readings.append(row)
             yield json.dumps(row)
 
+        if not_first:
+            yield ','
+        yield json.dumps({'query_id': save_to_db(username, json.dumps(readings))})
         yield "]"
-
-        db.execute('insert into sequences (username, sequence) values (?, ?)', (username, json.dumps(readings),))
-        db.commit()
 
     try:
         if request.args.get('streaming') == 'true':
             return Response(stream_with_context(g()))
         else:
-            o_db = get_db()
             payload = list(query_full_sequence())
-            o_db.execute('insert into sequences (username, sequence) values (?, ?)', (username, json.dumps(payload),))
-            o_db.commit()
+            payload.append({'query_id': save_to_db(username, json.dumps(payload))})
 
             return jsonify(payload)
 
@@ -178,11 +182,47 @@ def species_img():
         })
         result = resp.json()
 
-        cached_val = [x['link'] for x in result['items']]
+        try:
+            cached_val = [x['link'] for x in result['items']]
+            cache.set(cache_key, cached_val)
+        except KeyError:
+            # if we don't have any items, don't even bother udpating the cache and just return nothing
+            cached_val = []
+
+            return jsonify({'results': []})
+
         cache.set(cache_key, cached_val)
 
     return jsonify({
         'results': cached_val
+    })
+
+
+# ------------------------------------------------------
+# --- taxonomic information
+# ------------------------------------------------------
+
+@bp.route('/taxonomy/<tax_id>')
+def ancestry(tax_id):
+    results = db.engine.execute("""
+    with recursive ancestry(tax_id, rank, name) as (
+        select taxons.tax_id, taxons.rank, taxon_names.name from taxons
+        inner join taxon_names on taxon_names.tax_id=taxons.tax_id
+        where taxons.tax_id=:tax_id
+    
+        union all
+    
+        select T.parent_tax_id, T.rank, TN.name
+        from taxons T, ancestry
+        inner join taxon_names TN on TN.tax_id=T.tax_id
+        where T.tax_id=ancestry.tax_id and T.tax_id != T.parent_tax_id
+    ) select * from ancestry;
+    """, {'tax_id': tax_id})
+
+    columns = [x.name for x in TaxonNames.__table__.columns]
+
+    return jsonify({
+        'ancestry': list(dict(zip(columns, x)) for x in results)
     })
 
 

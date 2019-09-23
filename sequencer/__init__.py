@@ -13,10 +13,12 @@ def create_app(test_config=None):
     app.config.from_object('sequencer.default_settings')
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'sequencer.sqlite'),
+        # DATABASE=os.path.join(app.instance_path, 'sequencer.sqlite'),
         BLAST_DB_DIR=os.path.join(app.root_path, 'blast_db'),
         # CACHE_DIR=os.path.join(app.instance_path, 'cache'),
-        # CACHE_TYPE="filesystem"
+        # CACHE_TYPE="filesystem",
+        SQLALCHEMY_DATABASE_URI="sqlite:///%s" % os.path.join(app.instance_path, 'sequencer.sqlite'),
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
     app.config.from_pyfile('application.cfg', silent=True)
 
@@ -43,7 +45,8 @@ def create_app(test_config=None):
 
     # inject database management
     from . import db
-    db.init_app(app)
+    db.db.init_app(app)
+    app.cli.add_command(db.init_db_command)
 
     # inject api endpoints
     from . import api
