@@ -35,6 +35,7 @@
       </div>
 
       <div class="control_tray" key="blast_tray" v-if="active_read && scan_success">
+        <button class="btn btn-outline-secondary" @click="copy_blast(active_read)">Copy Sequence</button>
         <button class="btn btn-primary" @click="request_blast(active_read)">BLAST Sequence</button>
       </div>
     </transition-group>
@@ -64,7 +65,8 @@ export default {
             brick_error : null,
             blast_pending: false,
             scan_status,
-            col_to_base
+            col_to_base,
+            query_id: null
         }
     },
     computed: {
@@ -81,9 +83,13 @@ export default {
                 .start(() => {
                     this.active_read = [];
                 })
-                .node('!.*', (x) => {
+                .node('!.{color}', (x) => {
                     // show partial proggress
                     this.active_read.push(x);
+                })
+                .node('!.{query_id}', (x) => {
+                    // record the query id so we can save blast results later
+                    this.query_id = x.query_id;
                 })
                 .done((z) => {
                     this.brick_status = 'COMPLETE';
@@ -95,6 +101,26 @@ export default {
                     console.warn(err);
                     this.brick_error = err.jsonBody && err.jsonBody.error ? err.jsonBody.error : err.body;
                 });
+        },
+        copy_blast(sequence) {
+            const bases = sequence.map(x => col_to_base[x.color]).join("");
+
+            // create a temporary DOM element into which we'll do a copy of the current URL
+            const dummy = document.createElement('input'), text = bases;
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+
+            // notify the user that the copy has occurred
+            this.$bvToast.toast(`Copied ${bases} to clipboard`, {
+                autoHideDelay: 2000,
+                title: 'Copied Sequence',
+                variant: 'info',
+                toaster: 'b-toaster-top-center',
+                noCloseButton: true
+            });
         },
         request_blast(sequence) {
             const bases = sequence.map(x => col_to_base[x.color]).join("");
@@ -116,4 +142,5 @@ export default {
 .active_read.pending { opacity: 0.5; }
 
 .control_tray { margin-top: 20px; }
+.control_tray button { margin: 0 5px; border-collapse: collapse; min-width: 150px; }
 </style>
