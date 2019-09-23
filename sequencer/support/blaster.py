@@ -57,7 +57,7 @@ from sequencer.cache import cache
 #
 # ===========================================================================
 
-from ..default_settings import MOCK_BLAST, USE_BLAST_CACHING, MIN_POLL_DELAY_SECS
+from ..default_settings import MOCK_BLAST, USE_BLAST_CACHING, MIN_POLL_DELAY_SECS, BLAST_PARAMS
 
 BLAST_URL = (
     "https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi"
@@ -107,32 +107,13 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
     # --- step 1. send initial request
     # ------------------------------------------------------
 
-    # Suggested Search Parameters:
-    # Program	blastn
-    # Word size	7
-    # Expect value	1000
-    # Hitlist size	100
-    # Match/Mismatch scores	1,-3
-    # Gapcosts	5,2
-    # Filter string	F
-    # Genetic Code	1
-
     params = {
         'CMD': 'Put',
         'PROGRAM': program,
         'DATABASE': database,
         'QUERY': sequence,
-
-        'WORD_SIZE': '7',
-        'EXPECT': '1000',
-        'HITLIST_SIZE': '100',
-        'MATCH_SCORES': '1,-3',
-        'NUCL_REWARD': '1',
-        'NUCL_PENALTY': '-3',
-        'GAPCOSTS': '5 2',
-
-        'FILTER': 'F'
     }
+    params.update(BLAST_PARAMS)
 
     if program == 'megablast':
         params['PROGRAM'] = 'blastn'
