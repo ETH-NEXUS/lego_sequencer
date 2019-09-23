@@ -32,14 +32,21 @@
 
         <div class="results_pane" key="results_pane" v-if="blast_result">
           <div>
-            <h3 style="text-align: left;">Hits ({{ blast_first_five.length }}):</h3>
+            <h3 style="text-align: left;">Hits ({{ blast_unique_hits.length }}) (<a :href="job_url">view on NCBI</a>):</h3>
             <hr />
 
-            <div v-if="blast_first_five.length > 0" class="species-tiles">
-              <div class="species-tile" v-for="hit in blast_first_five" :key="hit.sciname">
-                <SpeciesResult :species="hit.sciname" :score="hit.score" :payload="hit.payload" v-on:show-details="show_details" />
+            <div v-if="blast_unique_hits.length > 0">
+              <div class="species-tiles">
+                <div class="species-tile" v-for="hit in blast_visible_unique_hits" :key="hit.sciname">
+                  <SpeciesResult :species="hit.sciname" :score="hit.score" :payload="hit.payload" v-on:show-details="show_details" />
+                </div>
+              </div>
+              <div v-if="blast_visible_hits < blast_unique_hits.length">
+                <hr />
+                <button class="btn btn-primary" @click="show_more_results()">Show More Results</button>
               </div>
             </div>
+
             <div v-else class="no-results">
               No matching species found.
               <br />
@@ -105,6 +112,8 @@ export default {
             blast_pending: false,
             blast_status: null,
             blast_result: null,
+            job_id: null,
+            blast_visible_hits: 6
         };
     },
     mounted() {
@@ -131,10 +140,15 @@ export default {
 
             return uniqBy(this.blast_hits, x => x.sciname);
         },
-        blast_first_five() {
+        blast_visible_unique_hits() {
             if (!this.blast_unique_hits)
                 return null;
-            return this.blast_unique_hits.slice(0, 6);
+            return this.blast_unique_hits.slice(0, this.blast_visible_hits);
+        },
+        job_url() {
+            if (!this.job_id)
+                return null;
+            return `https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi?CMD=Get&RID=${this.job_id}`;
         }
     },
     methods: {
@@ -145,6 +159,7 @@ export default {
                 .start(() => {
                     this.blast_pending = true;
                     this.blast_result = null;
+                    this.blast_visible_hits = 6;
                     this.blast_status = [
                         {status: `BLASTing ${bases}...`}
                     ];
@@ -152,6 +167,11 @@ export default {
                 .node('!.{status}', rec => {
                     console.log(rec);
                     this.blast_status.push(rec);
+
+                    if (rec.job_id) {
+                        this.job_id = rec.job_id
+                    }
+
                     const status_scroller = this.$refs.status_scroller;
                     if (status_scroller) {
                         setTimeout(() => {
@@ -177,6 +197,9 @@ export default {
         },
         show_details(options) {
             this.$refs.sidedar.showModal(options);
+        },
+        show_more_results() {
+            this.blast_visible_hits += 6;
         }
     }
 }
@@ -193,7 +216,7 @@ export default {
 
 .status_pane, .results_pane {
   margin-top: 1em;
-  padding: 10px;
+  padding: 10px 10px 0 10px;
 }
 .status_pane {
   text-align: left;
