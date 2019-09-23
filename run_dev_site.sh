@@ -2,4 +2,4 @@
 
 export FLASK_APP=sequencer
 export FLASK_ENV=development
-flask run
+pipenv run flask run
