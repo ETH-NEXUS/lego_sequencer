@@ -1,0 +1,5 @@
+/instance/sequencer.sqlite
+/instance/cache
+/logs
+/.venv
+/.git
