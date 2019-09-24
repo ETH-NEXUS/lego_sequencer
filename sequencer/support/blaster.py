@@ -64,7 +64,7 @@ BLAST_URL = (
     if not MOCK_BLAST else "http://localhost:5000/api/mock_blast"
 )
 
-LOG_STEPS = True
+LOG_STEPS = False
 LOG_TEMPLATE = os.path.join('logs', 'seq_%(seq)s_%(id)s-%(step)s.html')
 
 
