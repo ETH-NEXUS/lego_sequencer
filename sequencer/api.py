@@ -185,7 +185,7 @@ def species_img():
         # note: fileType accepts one extension at a time; you could filter after the fact
     }
     url = "https://www.googleapis.com/customsearch/v1"
-    current_app.logger.debug("Google Image Search → %s?%s", url, params)
+    current_app.logger.debug("Google Image Search → %s?%s", url, params.get('q', ''))
 
     try:
         resp = requests.get(url, params=params, timeout=5)

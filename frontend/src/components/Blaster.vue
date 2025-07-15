@@ -23,7 +23,7 @@
           <div class="status_scroller" ref="status_scroller">
             <transition-group name="slideright" tag="ol">
               <li v-for="(rec, idx) in blast_status" :key="idx">
-                {{ rec.status }}
+                <span v-html="rec.status"></span>
                 <fa-icon v-if="blast_pending && idx === blast_status.length - 1" icon="circle-notch" spin />
               </li>
             </transition-group>

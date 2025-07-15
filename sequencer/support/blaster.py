@@ -59,6 +59,17 @@ from sequencer.cache import cache
 
 from ..default_settings import MOCK_BLAST, USE_BLAST_CACHING, MIN_POLL_DELAY_SECS, BLAST_PARAMS
 
+FUN_FACTS=json.load(open(os.path.join(os.path.dirname(__file__), 'funfacts.json')))
+def get_fun_fact():
+    """
+    Returns a random fun fact from the funfacts.json file.
+    """
+    fact = FUN_FACTS[int(time()) % len(FUN_FACTS)]
+    # format the fact: bold title, fact on new line (HTML)
+    return '<b>%s</b><br>%s' % (fact['title'], fact['fact'])
+
+
+
 BLAST_URL = (
     "https://blast.ncbi.nlm.nih.gov/blast/Blast.cgi"
     if not MOCK_BLAST else "http://localhost:5000/api/mock_blast"
@@ -140,7 +151,13 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
         'status': "Waiting %d seconds for results for %s to be ready..." % (estimated_completion_secs, result_id),
         'job_id': result_id
     }
-    sleep(estimated_completion_secs)
+    sleep(1)
+    #fun_fact=FUN_FACTS[int(time()) % len(FUN_FACTS)]
+    yield {'status': get_fun_fact()}
+
+    #sleep(1)
+    #yield {'status': fun_fact['fact']}
+    sleep(estimated_completion_secs-2)
     yield {'status': "...done waiting, checking now."}
 
     # ------------------------------------------------------
