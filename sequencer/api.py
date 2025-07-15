@@ -10,7 +10,7 @@ from flask import (
     make_response,
     Response,
     stream_with_context,
-    send_file
+    send_file, current_app
 )
 
 from sequencer import cache
@@ -163,39 +163,50 @@ def local_blast():
 
 @bp.route('/species_img')
 def species_img():
-    species_name = request.args.get('species')
-    # species_name = "Homo sapiens"
+    species_name = request.args.get('species', '').strip()
+    if not species_name:
+        return jsonify(error='Missing "species" query parameter'), 400
 
-    cache_key = 'SPECIES_IMG:%s' % species_name
-    cached_val = cache.get(cache_key) if USE_GIS_CACHING else None
+    cache_key = 'SPECIES_IMG:{}'.format(species_name)
+    if USE_GIS_CACHING:
+        cached = cache.get(cache_key)
+        if cached is not None:
+            current_app.logger.debug("Cache hit for %s → %r", species_name, cached)
+            return jsonify(results=cached)
 
-    if not cached_val:
-        resp = requests.get('https://www.googleapis.com/customsearch/v1/siterestrict', params={
-            "key": GCE_KEY,
-            "cx": GCE_PROJECT_CX,
-            "safe": "high",
-            "fileType": "png|jpg|gif",
-            "imgType": "photo",
-            "searchType": "image",
-            "limit": 1,
-            "q": species_name
-        })
-        result = resp.json()
+    params = {
+        "key":      GCE_KEY,
+        "cx":       GCE_PROJECT_CX,
+        "q":        species_name,
+        "searchType":"image",
+        "num":      1,
+        "safe":     "high",
+        "imgType":  "photo",
+        # note: fileType accepts one extension at a time; you could filter after the fact
+    }
+    url = "https://www.googleapis.com/customsearch/v1"
+    current_app.logger.debug("Google Image Search → %s?%s", url, params)
 
-        try:
-            cached_val = [x['link'] for x in result['items']]
-            cache.set(cache_key, cached_val)
-        except KeyError:
-            # if we don't have any items, don't even bother udpating the cache and just return nothing
-            cached_val = []
+    try:
+        resp = requests.get(url, params=params, timeout=5)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        current_app.logger.error("Google API request failed [%s]: %s", getattr(e.response, "status_code", None), e)
+        return jsonify(results=[]), 502
 
-            return jsonify({'results': []})
+    result = resp.json()
+    if "error" in result:
+        current_app.logger.error("Google API returned error payload: %s", result["error"])
+        return jsonify(results=[]), 502
 
-        cache.set(cache_key, cached_val)
+    items = result.get("items") or []
+    links = [item.get("link") for item in items if item.get("link")]
 
-    return jsonify({
-        'results': cached_val
-    })
+    if USE_GIS_CACHING:
+        cache.set(cache_key, links)
+        current_app.logger.debug("Caching %r → %r", cache_key, links)
+
+    return jsonify(results=links)
 
 
 # ------------------------------------------------------

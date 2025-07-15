@@ -62,12 +62,32 @@ The site should be accessible at [http://localhost:5000](http://localhost:5000).
 
 ### Alternate Docker Setup
 
-If you prefer to use Docker, inside the source directory you can build the project as an image like so:
+Python 3.5 is not available on Mac, so one alternative is to use Docker. 
+Inside the source directory you can build the project as an image like so:
 
-```docker build -t lego-sequencer .```
-
+```docker build --platform linux/amd64 -t lego-sequencer .```
 Then, you can launch the image as a container:
 
-```docker run --rm -d -p 5000:50000 lego-sequencer```
+
+```bash
+docker run \
+  --platform linux/amd64 \
+  -p 5000:5000 \
+  -e FLASK_APP=sequencer \
+  -e FLASK_ENV=development \
+  -v "$(pwd)":/app \
+  lego-sequencer
+
+docker ps                      # find the container ID or name
+docker stop <container_id>    # stop the running container
+```
+
 
 As before, you should be able to access the site at [http://localhost:5000](http://localhost:5000).
+
+## Mock mode
+To test frontend an webservice calls without the lego hardware there is a mock mode implemented. Activate by setting `MOCK_COMM` in `sequencer/default_settings.py`.
+
+```python
+MOCK_COMM =  True
+```

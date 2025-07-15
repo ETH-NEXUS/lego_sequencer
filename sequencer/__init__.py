@@ -6,6 +6,14 @@ from flask_cors import CORS
 
 from sequencer.cache import cache
 
+# set up logging
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 def create_app(test_config=None):
     # create and configure the app
@@ -20,8 +28,9 @@ def create_app(test_config=None):
         SQLALCHEMY_DATABASE_URI="sqlite:///%s" % os.path.join(app.instance_path, 'sequencer.sqlite'),
         SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
-    app.config.from_pyfile('application.cfg', silent=True)
+    app.config.from_pyfile('application.cfg', silent=False)
 
+    #print('config: {}'.format(app.config))
     # allow the dev server to hit our api, too
     CORS(app, resources={r'/*': {'origins': '*'}})
     # also enable caching backend
