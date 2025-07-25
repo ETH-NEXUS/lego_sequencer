@@ -64,9 +64,10 @@ def get_fun_fact():
     """
     Returns a random fun fact from the funfacts.json file.
     """
-    fact = FUN_FACTS[int(time()) % len(FUN_FACTS)]
+    i=int(time()) % len(FUN_FACTS)
+    fact = FUN_FACTS[i]
     # format the fact: bold title, fact on new line (HTML)
-    return '<b>%s</b><br>%s' % (fact['title'], fact['fact'])
+    return 'Fun fact #%i: <b>%s</b><br>%s' % (i+1, fact['title'], fact['fact'])
 
 
 
@@ -75,7 +76,7 @@ BLAST_URL = (
     if not MOCK_BLAST else "http://localhost:5000/api/mock_blast"
 )
 
-LOG_STEPS = False
+LOG_STEPS = True
 LOG_TEMPLATE = os.path.join('logs', 'seq_%(seq)s_%(id)s-%(step)s.html')
 
 
@@ -146,19 +147,14 @@ def blast_sequence(sequence, database="nr", program='megablast', timeout=None):
     # ------------------------------------------------------
     # --- step 2. wait estimated time until we should check for response
     # ------------------------------------------------------
-
+    fun_fact = get_fun_fact()
     yield {
-        'status': "Waiting %d seconds for results for %s to be ready..." % (estimated_completion_secs, result_id),
+        'status': "Waiting %d seconds for results for %s to be ready...<br>%s" % (estimated_completion_secs, result_id, fun_fact),
         'job_id': result_id
     }
-    sleep(1)
-    #fun_fact=FUN_FACTS[int(time()) % len(FUN_FACTS)]
-    yield {'status': get_fun_fact()}
 
-    #sleep(1)
-    #yield {'status': fun_fact['fact']}
-    sleep(estimated_completion_secs-2)
-    yield {'status': "...done waiting, checking now."}
+    sleep(estimated_completion_secs)
+    # yield {'status': "...done waiting, checking now."}
 
     # ------------------------------------------------------
     # --- step 3. poll regularly for completion

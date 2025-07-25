@@ -20,22 +20,24 @@ from sequencer.db import db
 from sequencer.models import Sequence, TaxonNames
 from sequencer.support.blaster import blast_sequence, blast_sequence_local
 from sequencer.support.ev3_reader import query_full_sequence
+from sequencer.support.rag import generate_reflection
 
 GCE_KEY = None
 GCE_PROJECT_CX = None
 BLAST_DB_DIR = None
-
+OPENROUTER_API_KEY = None
 
 class APIBlueprint(Blueprint):
     def register(self, app, options, first_registration=False):
-        global GCE_KEY, GCE_PROJECT_CX
+        global GCE_KEY, GCE_PROJECT_CX, OPENROUTER_API_KEY
 
         config = app.config
         GCE_KEY = config.get('GCE_KEY')
         GCE_PROJECT_CX = config.get('GCE_PROJECT_CX')
+        OPENROUTER_API_KEY = config.get('OPENROUTER_API_KEY')
         BLAST_DB_DIR = config.get('BLAST_DB_DIR')
 
-        super(APIBlueprint, self).register(app, options, first_registration)
+        super(APIBlueprint, self).register(app, options)
 
 
 bp = APIBlueprint('api', __name__, url_prefix='/api')
@@ -235,6 +237,38 @@ def ancestry(tax_id):
     return jsonify({
         'ancestry': list(dict(zip(columns, x)) for x in results)
     })
+
+
+# ------------------------------------------------------
+# --- rag
+# ------------------------------------------------------
+
+@bp.route('/reflection', methods=['POST'])
+def reflection():
+    data = request.json
+    api_key = OPENROUTER_API_KEY
+    seq = data.get("seq")
+    species = data.get("species")
+    username = data.get("username")
+
+    if not api_key or not seq or not species:
+        return jsonify({"error": "Missing required parameters"}), 400
+
+    # If species is a list, join it for the prompt
+    if isinstance(species, list):
+        species_str = ", ".join(species)
+    else:
+        species_str = str(species)
+
+    def g():
+        for chunk in generate_reflection(api_key, seq, species_str, username):
+            yield chunk
+    return Response(stream_with_context(g()), mimetype='text/plain')
+
+# test endpoint
+# curl -X POST http://localhost:5000/api/reflection \
+#  -H "Content-Type: application/json" \
+#  -d '{"seq": "TGCTGTCAGTAGATCCCAAGCG", "species": ["Notamacropus eugenii", "Ornithodoros turicata"], "username": "Alice"}'
 
 
 # ------------------------------------------------------

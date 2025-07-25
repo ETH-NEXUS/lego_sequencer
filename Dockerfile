@@ -1,12 +1,12 @@
-FROM python:3.5-alpine
+FROM python:3.12-slim
 
 RUN pip install pipenv
 
 WORKDIR /app
 COPY Pipfile* /app/
-RUN pipenv install
+RUN pipenv install --deploy --ignore-pipfile
 
 COPY . /app/
 
 EXPOSE 5000
-CMD ./run_alpine_site.sh
+CMD ["pipenv", "run", "./run_alpine_site.sh"]

@@ -18,7 +18,7 @@
       <div v-else-if="current_step === 2" :key="2" class="step" id="step3">
         <h1>BLAST Sequence</h1>
 
-        <Blaster :sequence="active_sequence" v-on:results-displayed="blast_complete" />
+        <Blaster :sequence="active_sequence" :username="name" v-on:results-displayed="blast_complete" />
 
         <div v-if="ready_to_restart">
           <hr />

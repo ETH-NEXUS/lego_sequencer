@@ -60,6 +60,18 @@ If you're using Windows, you'll probably want to run the webserver via [Waitress
 
 The site should be accessible at [http://localhost:5000](http://localhost:5000).
 
+## Google custom search API
+The web server uses google custom serarch API to fetch images of the species found by blast.
+To use this feature, set up a search engine as well as API key as described in  
+`https://developers.google.com/custom-search/v1/overview`
+and store the credentials in `instance/application.cfg`:
+```
+
+GCE_KEY = 'your_key'
+GCE_PROJECT_CX = 'your_search_engine_id'
+```
+
+
 ### Alternate Docker Setup
 
 Python 3.5 is not available on Mac, so one alternative is to use Docker. 

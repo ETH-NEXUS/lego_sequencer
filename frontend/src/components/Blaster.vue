@@ -34,7 +34,13 @@
           <div>
             <h3 style="text-align: left;">Hits ({{ blast_unique_hits.length }}) (<a :href="job_url">view on NCBI</a>):</h3>
             <hr />
-
+            <!-- Reflection component here -->
+            <Reflection
+              v-if="blast_result && blast_result.sequence && blast_unique_hits && blast_unique_hits.length"
+              :sequence="blast_result.sequence"
+              :species-list="blast_unique_hits.slice(0, 6).map(hit => hit.sciname)"
+              :username="username"
+            />
             <div v-if="blast_unique_hits.length > 0">
               <div class="species-tiles">
                 <div class="species-tile" v-for="hit in blast_visible_unique_hits" :key="hit.sciname">
@@ -82,9 +88,7 @@
               </div>
 
               <div class="mini-sec"><b>Bases:</b>
-                <div class="alignment">{{ hit.qseq }}
-                  {{ hit.midline }}
-                  {{ hit.hseq }}
+                <div class="alignment">{{ hit.qseq + '\n' + hit.midline + '\n' + hit.hseq }}
                 </div>
               </div>
             </div>
@@ -101,12 +105,16 @@ import uniqBy from "lodash/uniqBy";
 import countBy from "lodash/countBy";
 import {col_to_base} from "../constants";
 import SpeciesResult from "./SpeciesResult";
+import Reflection from "./Reflection.vue";
 import Sidebar from "./Sidebar";
 
 export default {
     name: "Blaster",
-    components: {Sidebar, SpeciesResult},
-    props: { sequence: { type: String, required: false } },
+    components: {Sidebar, SpeciesResult, Reflection},
+    props: {
+        sequence: { type: String, required: false },
+        username: { type: String, required: false }
+    },
     data() {
         return {
             blast_pending: false,

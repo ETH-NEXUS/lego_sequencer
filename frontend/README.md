@@ -45,7 +45,7 @@ yarn install
 > brew link --overwrite --force node@16
 > ```
 >
-> **Workaround for Node.js 17+** (not recommended for production):
+> **Workaround for Node.js 17+**
 > If you must use a newer Node version, you can bypass the OpenSSL error by setting:
 >
 > ```bash
@@ -57,21 +57,6 @@ yarn install
 
 ---
 
-## 🚀 Development
-
-### Start the dev server with hot reload:
-
-```bash
-yarn run serve
-```
-
-Then open your browser at:
-👉 [http://localhost:8080](http://localhost:8080)
-
-Changes to `.vue` files will update live.
-
----
-
 ## 📆 Production Build
 
 ### Compile and minify the frontend for deployment:
@@ -80,26 +65,13 @@ Changes to `.vue` files will update live.
 yarn run build
 ```
 
-This creates a `dist/` folder you can serve via your backend (e.g. Flask/Django).
-
----
-
-## ✅ Linting & Testing
-
-### Run lint checks and auto-fix issues:
-
-```bash
-yarn run lint
-```
-
-### Run unit tests (if configured):
-
-```bash
-yarn run test
-```
-
----
+This creates a `dist/` folder you can serve via the sequencer backend.
 
 ## 🔧 Configuration
 
 See [Vue CLI Configuration Reference](https://cli.vuejs.org/config/) for advanced options.
+
+## 🛡️ Security Notes
+
+This frontend is not exposed to the public web and does not process sensitive data.  
+Security alerts (e.g., Dependabot warnings) are intentionally ignored for development convenience.
