@@ -12,19 +12,25 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <router-link to="/" class="nav-link" tag="a">Home</router-link>
+            <router-link to="/" class="nav-link" tag="a">{{ $t('menu.home') }}</router-link>
           </li>
-
           <li class="nav-item">
-            <router-link to="/debug" class="nav-link" tag="a">Debug</router-link>
+            <router-link to="/debug" class="nav-link" tag="a">{{ $t('menu.debug') }}</router-link>
           </li>
-
           <!--
           <li class="nav-item">
-            <router-link to="/designer" class="nav-link" tag="a">Designer</router-link>
+            <router-link to="/designer" class="nav-link" tag="a">{{ $t('menu.designer') }}</router-link>
           </li>
           -->
         </ul>
+        <!-- Language Switcher -->
+        <div class="form-inline my-2 my-lg-0">
+          <label for="lang-select" class="mr-2">{{ $t('language') }}:</label>
+          <select id="lang-select" class="form-control" v-model="$i18n.locale">
+            <option value="en">English</option>
+            <option value="de-CH">Schwiizerdütsch</option>
+          </select>
+        </div>
       </div>
     </nav>
 

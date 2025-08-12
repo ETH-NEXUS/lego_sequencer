@@ -1,28 +1,27 @@
 <template>
   <div class="steps">
-    <!-- TODO: create step-processing system -->
     <transition-group name="step" mode="out-in">
 
       <div v-if="current_step === 0" :key="0" class="step" id="step1">
-        <h1>Welcome to the<br />LEGO Sequencer!</h1>
-        <label for="name">Please enter your name:</label><br />
-        <input type="text" id="name" v-model="name" placeholder="enter your name here" @submit="proceed()" /><br />
-        <button class="btn btn-primary" :disabled="!name" @click="proceed()">Continue</button>
+        <h1>{{ $t('general.welcome') }}<br />LEGO Sequencer!</h1>
+        <label for="name">{{ $t('process.enter_name') }}</label><br />
+        <input type="text" id="name" v-model="name" :placeholder="$t('process.name_placeholder')" @submit="proceed()" /><br />
+        <button class="btn btn-primary" :disabled="!name" @click="proceed()">{{ $t('process.continue') }}</button>
       </div>
 
       <div v-else-if="current_step === 1" :key="1" class="step" id="step2">
-        <h1>Scan Bricks</h1>
+        <h1>{{ $t('process.scan_bricks') }}</h1>
         <SingleSequencer :username="name" v-on:request-blast="request_blast" />
       </div>
 
       <div v-else-if="current_step === 2" :key="2" class="step" id="step3">
-        <h1>BLAST Sequence</h1>
+        <h1>{{ $t('process.blast_sequence') }}</h1>
 
         <Blaster :sequence="active_sequence" :username="name" v-on:results-displayed="blast_complete" />
 
         <div v-if="ready_to_restart">
           <hr />
-          <button class="btn btn-danger" @click="restart()">Start Over</button>
+          <button class="btn btn-danger" @click="restart()">{{ $t('process.start_over') }}</button>
         </div>
       </div>
 

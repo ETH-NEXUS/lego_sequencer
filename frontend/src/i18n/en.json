@@ -1,0 +1,30 @@
+{  
+  "language": "Language",
+  "close": "Close",
+  "sidebar": {
+    "title": "Sidebar",
+    "close": "Close"
+  },
+  "modal": {
+    "header": "Modal Header",
+    "content": "This is the content of the modal."
+  },
+  "general": {
+    "welcome": "Welcome to the application!",
+    "loading": "Loading...",
+    "error": "An error occurred. Please try again."
+  },
+  "process": {
+    "enter_name": "Please enter your name:",
+    "name_placeholder": "enter your name here",
+    "continue": "Continue",
+    "scan_bricks": "Scan Bricks",
+    "blast_sequence": "BLAST Sequence",
+    "start_over": "Start Over"
+  },
+  "menu": {
+    "home": "Home",
+    "debug": "Debug",
+    "designer": "Designer"
+  }
+}

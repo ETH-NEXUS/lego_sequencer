@@ -1,0 +1,19 @@
+{
+  "missing_params": "Es fählt nöötigi Parameter",
+  "not_a_sequence": "Oh nei, mir hei kei DNA-Sequenz als Text becho, sondern {seq}. Kei Sorge – s Problem isch bi üs!",
+  "rate_limit": "Uups! Oise Gschichte-AI bruucht e churzi Pause. Z vil Aafrogä sind cho, mir hei s Limit erreicht. Probier's gli nomol!",
+  "connection_error": "Oh nei! Mir hei d'Verbindig zu oisem AI-Gschichteerzähler verlore. Bitte lueg d'Internet oder probier's spöter nomol.",
+  "bad_request": "Hmm, öpis an dere LEGO-Sequenz het oises System verwirrt. (Technische Info: {error})",
+  "auth_error": "Oisi AI-Zugangs-Chärtli funktioniert nöd – d'Authentifizierung isch fehlgschlage. Mir müend en Mensch drum bitte.",
+  "api_error": "Oise AI-Gschichteerzähler het grad e Problem. (Server-Fehler: {error}) Probier's bald nomol.",
+  "unexpected_error": "Öpis Unerwartets isch passiert. Kei Sorge – s Problem isch bi üs! (Fehler: {error})",
+  
+  "reflection_template":
+    {
+    "general": "NEXUS wird 10! Mir zeiged es luschtigs LEGO EV3 \"DNA-Sequänzer\" Demo.\n\n{username} het e LEGO-Stapel baut; d'Farbä sind i die DNA (5'→3') entschlüsslet worde: {seq}\nEn schnelle BLAST-Suech zeigt Ähnlechkeite mit: {species}\n\nSchlüpf jetzt i d'Roll vo enem fründliche Wissenschaftler. Schrib i höchstens 5 Sätz e churzi, neugierigi Reflection für alli verständlich: überleitigsvoll, chli witzig. Kei medizinischi Rotschläg; kei Fantasie; luschtigi Sprüng sind erlaubt.",
+    "egfr": "NEXUS wird 10! LEGO EV3 \"DNA-Sequänzer\" Demo.\n\n{username} het die DNA (5'→3') entschlüsslet: {seq}\nBLAST zeigt Ähnlechkeite mit: {species}\n\nKontext für dini Reflection (≤5 Sätz, lai-verständlich): Das Stück passt i d'EGFR-Kinase-Domäne (ATP-Bindigsschlaufe), wo chliini Änderige d'Signali oder d'Medizin-Empfindlichkeit verändere chönd. Halts neugierig und locker; kei medizinischi Rotschläg; kei Fantasie.",
+    "cftr": "NEXUS wird 10! LEGO EV3 \"DNA-Sequänzer\" Demo.\n\n{username} het die DNA (5'→3') entschlüsslet: {seq}\nBLAST zeigt Ähnlechkeite mit: {species}\n\nKontext für dini Reflection (≤5 Sätz, lai-verständlich): Das Segment isch im CFTR-Exon 10, e Bereich, wo chliini Änderige d'Protein-Faltig oder s'\"Gating\" vom Kanal verändere chönd. Halts luschtig aber klar; kei medizinischi Rotschläg; kei Fantasie.",
+    "warfarin": "NEXUS wird 10! LEGO EV3 \"DNA-Sequänzer\" Demo.\n\n{username} het die DNA (5'→3') entschlüsslet: {seq}\nBLAST zeigt Ähnlechkeite mit: {species}\n\nKontext für dini Reflection (≤5 Sätz, lai-verständlich): Die Abschnitte überlappe mit Gen, wo d'Wirkig vo Warfarin beeinflusse – eis betrifft s'Medizin-Ziel, s'ander d'Abbaugeschwindigkeit – drum chönd chliini Änderige d'Dosisbedürfnis verschiebe. Sei neugierig, erläuternd und locker; kei Dosierigstipps; kei Fantasie.",
+    "sars2_rbd": "NEXUS wird 10! LEGO EV3 \"DNA-Sequänzer\" Demo.\n\n{username} het die DNA (5'→3') entschlüsslet: {seq}\nBLAST zeigt Ähnlechkeite mit: {species}\n\nKontext für dini Reflection (≤5 Sätz, lai-verständlich): Das isch im SARS-CoV-2 Spike-RBD, es Hotspot, wo Änderige i dr Nähe im Kombination Bindig oder Immun-Erkennegig verändere chönd – praktisch fürs Abwasser-Monitoring. Halts verständlich und witzig; kei Gsundheitstipps; kei Fantasie."
+    }
+}

@@ -23,7 +23,8 @@ export default {
     components: {Blaster, Sequencer},
     data() {
         return {
-            active_sequence: null
+            active_sequence: null,
+            username: ""
         }
     },
     methods: {

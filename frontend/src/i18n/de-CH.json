@@ -1,0 +1,30 @@
+{
+  "language": "Sprooch",
+  "close": "Zuemache",
+  "sidebar": {
+    "title": "Syteleischte",
+    "close": "Zuemache"
+  },
+  "modal": {
+    "header": "Modal-Titel",
+    "content": "Das isch dr Inhalt vom Modal."
+  },
+  "general": {
+    "welcome": "Willkomme i dr Applikation!",
+    "loading": "Am Lade...",
+    "error": "Es isch öppis schief gloffe. Bitte versuech's nomol."
+  },
+  "process": {
+    "enter_name": "Bitte gib dis Name ii:",
+    "name_placeholder": "Name da iigäh",
+    "continue": "Wyter",
+    "scan_bricks": "Bricks scanne",
+    "blast_sequence": "BLAST Sequenz",
+    "start_over": "No mal aafange"
+  },
+  "menu": {
+    "home": "Start",
+    "debug": "Debug",
+    "designer": "Designer"
+  }
+}

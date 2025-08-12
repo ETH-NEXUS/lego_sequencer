@@ -1,5 +1,4 @@
 import random
-from time import sleep
 from uuid import uuid4
 
 import requests
@@ -21,6 +20,8 @@ from sequencer.models import Sequence, TaxonNames
 from sequencer.support.blaster import blast_sequence, blast_sequence_local
 from sequencer.support.ev3_reader import query_full_sequence
 from sequencer.support.rag import generate_reflection
+from sequencer.support.translations import get_translation
+
 
 GCE_KEY = None
 GCE_PROJECT_CX = None
@@ -246,13 +247,19 @@ def ancestry(tax_id):
 @bp.route('/reflection', methods=['POST'])
 def reflection():
     data = request.json
+    lang = data.get("lang", "en")  # Default to English if not provided
+
+    # Use translation
+    error_msg = get_translation('missing_params', lang)
+
     api_key = OPENROUTER_API_KEY
     seq = data.get("seq")
     species = data.get("species")
     username = data.get("username")
+    current_app.logger.debug("Reflection request: %s", data)
 
     if not api_key or not seq or not species:
-        return jsonify({"error": "Missing required parameters"}), 400
+        return jsonify({"error": error_msg}), 400
 
     # If species is a list, join it for the prompt
     if isinstance(species, list):

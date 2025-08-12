@@ -1,0 +1,62 @@
+funfacts_schwiiz = [
+  {
+    "title": "Wievil DNA het's im NEXUS?",
+    "fact": "Ds zämegzelltä Genom vo all 26 Nexianer het meh als 80 Milliarden Basäpär — gnueg, um e LEGO-Turm z'boue, wo über 550'000 km hoch isch!"
+  },
+  {
+    "title": "Vo dr Erde bis zum Mond — mit Stei",
+    "fact": "Wenn du für jede Basäpär im zämegzelltä NEXUS-Genom (alli 26 Mitarbeiter) e LEGO-Stei ufäsetze würdisch, chämmer bis zum Mond — und no halbwegs zrugg!"
+  },
+  {
+    "title": "NEXUS Konferenz, LEGO-Edition",
+    "fact": "In 2 Täg NEXUS-Konferenz chönt üse LEGO-Robot meh als 170'000 Stei läse — das isch öppis so gross wie s'TTN, s'gröschti menschlichi Gen."
+  },
+  {
+    "title": "Wie schnäll isch es echtes Illumina?",
+    "fact": "Es echtes Illumina NovaSeq (en professionellä DNA-Sequänzer) chann 48 menschligi Genom mit 20x Abdeckig i nur 2 Täg läse — üse LEGO-Sequänzer bruuchet fascht 200'000 Johr, um nachzchöme!"
+  },
+  {
+    "title": "LEGO-Genom-Distanz",
+    "fact": "Es einzigs menschlichs Genom, ufbouet us LEGO-Stei, würd öppe 20'000 km lang si — das isch halbi Erdrundi!"
+  },
+  {
+    "title": "Zürisee voll mit Stei",
+    "fact": "Wenn mer alli NEXUS-Genom als LEGO-Stei nebeneinander usleged, deckt das meh als 20 Quadratkilometer — fascht halb so gross wie dr Zürisee!"
+  },
+  {
+    "title": "LEGO vs. 10 Johr NEXUS",
+    "fact": "I de 10 Johr sit s'NEXUS gründet worde isch, hett dr LEGO-Sequänzer nume öppe 10% vo enem einzigä menschlichä Genom gläse!"
+  },
+  {
+    "title": "Ertrunke in LEGO-Stei",
+    "fact": "Wenn jede Basäpär im DNA vom NEXUS-Team es LEGO-Stei wär, würdisch fascht s'ganz Atrium im ETH-Hauptgeböi fülle — vom Boden bis zur Kuppel!"
+  },
+  {
+    "title": "DNA us LEGO... so gross wie d’Erde?",
+    "fact": "E menschlichä Körper het öppe 37 Billionä Zelle — und wenn mer all die DNA mit LEGO-Stei nachboue würd, bruuched mer nume d’DNA vo 1'860 Lüt, um s’Volumen vo dr ganze Erde z’erreiche!"
+  },
+  {
+    "title": "DNA-Stei für e ganzä Mensch",
+    "fact": "Wänn mer d’DNA us jede Zelle i dim Körper mit LEGO-Stei nachboue wött, bruuchet LEGO öppe 6,5 Billionä Johr, um gnueg Stei z'mache — das isch fascht 500-mal s'Alter vom Universum!"
+  },
+  {
+    "title": "Es Genom, bitte",
+    "fact": "LEGO chönnt gnueg Stei produziere, um es ganz menschlichs Genom z'boue — i nume 66 Täg!"
+  },
+  {
+    "title": "Bakterie mit LEGO sequänziere",
+    "fact": "S’Sequänziere vo enem chlini Bakterie-Genom wie E. coli — öppe 1,25 Millionen Basäpär — würd mit em LEGO-Sequänzer 14,5 Täg dure. Dr Turm würd vo ETH Hauptgeböi bis SWS i Schlieren und denn no bis ETH Hönggerberg go!"
+  },
+  {
+    "title": "Long Reads sind würkli lang",
+    "fact": "Einigi Long-Read-Sequänzer chönd bis zu 2 Million DNA-Basä uf einisch läse — das isch wie e LEGO-Stapel bis i d'Stratosphär!"
+  },
+  {
+    "title": "Marathon i ener Minut",
+    "fact": "Es chlises Illumina MiSeq läst öppe 74'000 Basäpär pro Sekund — wenn jede es LEGO-Stei wär, chönt es i einere Minut en ganze Marathon läse!"
+  },
+  {
+    "title": "LEGO vs DNA-Synthese",
+    "fact": "Es synthetisiere vo ener maßgschneiderte DNA mit 1 Million Basä chostet öppe 100'000 Franken — genau so viel wie 1 Million LEGO-Stei!"
+  }
+]

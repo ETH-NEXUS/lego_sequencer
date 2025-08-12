@@ -1,0 +1,18 @@
+{
+  "missing_params": "Missing required parameters",
+  "not_a_sequence": "Eh, somehow we did not get a DNA sequence string, but {seq}. No worries—it’s not you, it’s us!",
+  "rate_limit": "Oops! Our storytelling AI needs a short break. Too many requests came in, and we hit the free usage limit. Try again in a moment!",
+  "connection_error": "Uh-oh! We lost connection to our AI story generator. Please check the internet or try again in a few seconds.",
+  "bad_request": "Hmm, something about this LEGO sequence confused our system. (Technical note: {error})",
+  "auth_error": "Looks like our AI key card didn’t work—authentication failed. We’ll need a human to look into this.",
+  "api_error": "Our AI storyteller is having a moment. (Server error: {error}) Please try again soon.",
+  "unexpected_error": "Something unexpected happened. No worries—it’s not you, it’s us! (Error: {error})",
+  "reflection_template":
+  {
+    "general": "NEXUS turns 10! We’re showing a playful LEGO “DNA sequencer.”\n\n{username} built a LEGO stack; the colors decoded to this DNA (5'→3'): {seq}\nA quick BLAST echoes bits from: {species}\n\nNow slip into a friendly scientist voice. In ≤5 sentences, write a light, curious reflection for a general audience: thoughtful, a touch whimsical. no fantasy; playful leaps welcome.",
+    "egfr": "NEXUS turns 10! LEGO “DNA sequencer” demo.\n\n{username} decoded this DNA (5'→3'): {seq}\nBLAST shows echoes from: {species}\n\nContext for your reflection (≤5 sentences, lay-friendly): this region maps to the EGFR kinase domain (ATP-binding loop) where small changes can tweak signaling and drug sensitivity. Keep it curious and light; provide clinical advice; no fantasy.",
+    "cftr": "NEXUS turns 10! LEGO “DNA sequencer” demo.\n\n{username} decoded this DNA (5'→3'): {seq}\nBLAST shows echoes from: {species}\n\nContext for your reflection (≤5 sentences, lay-friendly): this segment sits in CFTR exon 10, a cluster where tiny edits can affect protein folding or channel “gating.” Keep it playful but clear; provide clinical advice; no fantasy.",
+    "warfarin": "NEXUS turns 10! LEGO “DNA sequencer” demo.\n\n{username} decoded this DNA (5'→3'): {seq}\nBLAST shows echoes from: {species}\n\nContext for your reflection (≤5 sentences, lay-friendly): snippets here overlap genes tied to warfarin response—one affects the drug’s target, another its breakdown—so small variants can shift dose needs. Be curious, educational, and light; provide dosing advice; no fantasy.",
+    "sars2_rbd": "NEXUS turns 10! LEGO “DNA sequencer” demo.\n\n{username} decoded this DNA (5'→3'): {seq}\nBLAST shows echoes from: {species}\n\nContext for your reflection (≤5 sentences, lay-friendly): this is within the SARS-CoV-2 spike RBD, a hotspot where nearby mutations in combination can change binding or immune recognition—handy for wastewater tracking. Keep it accessible and whimsical; provide health advice; no fantasy."
+  }
+}

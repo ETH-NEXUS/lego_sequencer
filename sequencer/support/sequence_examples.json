@@ -1,0 +1,30 @@
+{
+  "EGFR_kinase_ex18-19": {
+    "codon_offset": 718,
+    "sequence": "CTGGGCTCCGGTGCGTTCGGCACGGTGTATAAGGGACTCTTGATCCCAGAAGGTGAGAAAGTTAAAATTCCCGTCGCTATCAAGGAATTAAGAGAAGCAACA"
+  },
+  "CFTR_exon10_cluster": {
+    "codon_offset": 550,
+    "sequence": "GGTGCATTTGGCATATGCTTTGGCACCATTAAAGAAGAAGGCATCATCATG"
+  },
+  "Warfarin_VKORC1_Exon1": {
+    "codon_offset": 28,
+    "sequence": "CACGTGAAGGCGGCGCGCGCCCGGGACCGGGATTACCGCGCGCTCTGCGACGTGGGC"
+  },
+  "Warfarin_CYP2C9_Exon7": {
+    "codon_offset": 355,
+    "sequence": "GTCCAGAGATACATTGACCTTCTCCCCACCAGCCTGCCCATGCAGTGACCTGTGAC"
+  },
+  "SARS2_Spike_RBD_c1401": {
+    "codon_offset": 467,
+    "sequence": "GATATTTCAACTGAAATCTATCAGGCCGGTAGCACACCTTGT"
+  },
+  "SARS2_Spike_RBD_c1443": {
+    "codon_offset": 481,
+    "sequence": "AATGGTGTTGAAGGTTTTAATTGTTACTTTCCTTTACAATCA"
+  },
+  "SARS2_Spike_RBD_c1485": {
+    "codon_offset": 495,
+    "sequence": "TATGGTTTCCAACCCACTAATGGTGTTGGTTACCAACCATAC"
+  }
+}

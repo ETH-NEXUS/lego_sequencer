@@ -1,5 +1,14 @@
 <template>
   <b-modal class="modal right fade" id="sidebar" ref="sidebar" cancel-disabled>
+    <!-- Language Switcher -->
+    <div class="language-switcher" style="margin-bottom: 1em;">
+      <label for="lang-select">{{ $t('language') }}:</label>
+      <select id="lang-select" v-model="$i18n.locale">
+        <option value="en">English</option>
+        <option value="de-CH">Schwiizerdütsch</option>
+      </select>
+    </div>
+
     <template slot="modal-title">
       <h2>{{ display_title }}</h2>
     </template>
@@ -11,8 +20,7 @@
     </div>
 
     <template slot="modal-footer" slot-scope="{ ok, cancel, hide }">
-      <!-- Emulate built in modal footer ok and cancel button actions -->
-      <b-button variant="primary" @click="ok()">Close</b-button>
+      <b-button variant="primary" @click="ok()">{{ $t('close') }}</b-button>
     </template>
   </b-modal>
 </template>

@@ -44,6 +44,9 @@ When you're done with your demo, press the back button (the top-left button on t
 buttons). You'll again see the file browser. Hold down the back button until a popup menu appears with power options
 (i.e., "Power Off", "Reboot", and "Cancel"); press the center button again to turn the unit off.
 
+### SSH
+For debugging and setup, ssh to the ev3 can be helpful, with usb connected run: `ssh robot@ev3dev.local` default pw:`maker`.
+
 ## Webserver Setup
 
 Inside the source directory, run the following to install the required Python libraries for the project:
@@ -59,6 +62,10 @@ If you're using Windows, you'll probably want to run the webserver via [Waitress
 `run_site.bat`
 
 The site should be accessible at [http://localhost:5000](http://localhost:5000).
+
+## Patch rpyc 3.3
+The eve3 runs python 3.5, and the corresponding rpyc module 3.3.0 - which is incompatible with modern python versions, due to the usage of async (keyword since python 3.7)
+To make it work with modern python, the function rpyc.utils.helpers.async needs to be renamed to async_, as well as the module rpyc.core.async to async_module. 
 
 ## Google custom search API
 The web server uses google custom serarch API to fetch images of the species found by blast.

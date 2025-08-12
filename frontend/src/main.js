@@ -25,6 +25,22 @@ library.add(faUserSecret, faSpinner, faTrash, faCircleNotch, faAngleDoubleDown, 
 
 Vue.component('fa-icon', FontAwesomeIcon);
 
+// i18n
+import VueI18n from 'vue-i18n'
+import en from './i18n/en.json'
+import deCH from './i18n/de-CH.json'
+Vue.use(VueI18n);
+
+const messages = {
+  en,
+  'de-CH': deCH
+};
+
+const i18n = new VueI18n({
+  locale: 'en',
+  fallbackLocale: 'en',
+  messages
+});
 Vue.use(VueRouter);
 
 // route components
@@ -42,6 +58,7 @@ const router = new VueRouter({
 });
 
 new Vue({
+  i18n,
   render: h => h(App),
   router
 }).$mount('#app');

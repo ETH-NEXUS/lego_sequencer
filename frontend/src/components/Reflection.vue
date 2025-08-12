@@ -2,7 +2,7 @@
   <div class="reflection">
     <h3>Sequence Reflection</h3>
     <div v-if="loading">Generating reflection...</div>
-    <pre v-else>{{ reflection }}</pre>
+    <pre>{{ reflection }}</pre>
     <button v-if="!loading" @click="generateReflection">Regenerate</button>
   </div>
   <Reflection
@@ -17,7 +17,8 @@
 export default {
   props: {
     sequence: { type: String, required: true },
-    speciesList: { type: Array, required: true }
+    speciesList: { type: Array, required: true },
+    username: { type: String, required: false }
   },
   data() {
     return {
@@ -27,6 +28,12 @@ export default {
   },
   methods: {
     async generateReflection() {
+      console.log("Reflection props:", {
+        sequence: this.sequence,
+        speciesList: this.speciesList,
+        username: this.username
+      });
+
       this.reflection = "";
       this.loading = true;
       const response = await fetch("/api/reflection", {
@@ -44,6 +51,8 @@ export default {
         const { value, done } = await reader.read();
         if (done) break;
         this.reflection += decoder.decode(value, { stream: true });
+        // Yield to the event loop so Vue can update the DOM
+        await this.$nextTick();
       }
       this.loading = false;
     }
