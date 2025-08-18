@@ -11,30 +11,29 @@ If you don’t already have Node.js and Yarn installed:
 #### On macOS with Homebrew:
 
 ```bash
-brew install node@16
-brew install yarn
-brew link --overwrite --force node@16
-```
-
-#### Or install manually:
-
-* [Node.js LTS Downloads](https://nodejs.org/en/download/releases/)
-* [Yarn Installation Guide](https://classic.yarnpkg.com/en/docs/install)
-
-### 1. Install dependencies
-
-```bash
-yarn install
-```
 
 > **Note:** This project may fail to build with Node.js v17+.
 > Use Node.js **v16** for best compatibility.
 > You can manage versions with [nvm](https://github.com/nvm-sh/nvm):
 >
-> ```bash
-> nvm install 16
-> nvm use 16
-> ```
+
+brew install nvm
+mkdir -p ~/.nvm
+echo 'export NVM_DIR="~/.nvm"' >> ~/.zshrc
+echo '[ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"'>> ~/.zshrc
+echo '[ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm"'>> ~/.zshrc
+
+# reload shell ( e.g. exec $SHELL)
+nvm install 16
+nvm use 16
+
+
+brew install yarn
+```
+
+```bash
+yarn install 
+```
 >
 > **Alternative without nvm:**
 > If you're not using `nvm`, consider installing [Node 16 LTS](https://nodejs.org/en/download/releases/) manually, and setting it as your system default.
