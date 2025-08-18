@@ -2,14 +2,14 @@
   <div>
     <div class="control_tray">
       <button class="btn btn-primary" @click="scan_bricks" :disabled="active_read && !scan_success">
-        {{ scan_success ? 'Re-scan' : 'Scan' }} Bricks
+        {{ scan_success ? $t('sequencer.rescan_bricks') : $t('sequencer.scan_bricks') }}
       </button>
 
       <div class="status">
         <span v-if="brick_error" class="error"><b>Error:</b> {{ brick_error }}</span>
         <span v-else-if="brick_status !== 'PENDING'">
             <fa-icon v-if="brick_status === 'SCANNING'" icon="circle-notch" spin />
-            {{ scan_status[brick_status] }}
+            {{ $t('sequencer.status.' + brick_status.toLowerCase()) }}
           </span>
       </div>
     </div>
@@ -35,8 +35,13 @@
       </div>
 
       <div class="control_tray" key="blast_tray" v-if="active_read && scan_success">
-        <button class="btn btn-outline-secondary" @click="copy_blast(active_read)">Copy Sequence</button>
-        <button class="btn btn-primary" @click="request_blast(active_read)">BLAST Sequence</button>
+        <button class="btn btn-outline-secondary" @click="copy_blast(active_read)">
+          <fa-icon icon="clipboard" />
+          {{ $t('sequencer.copy_sequence') }}
+        </button>
+        <button class="btn btn-primary" @click="request_blast(active_read)">
+          {{ $t('sequencer.blast_sequence') }}
+        </button>
       </div>
     </transition-group>
   </div>
@@ -47,12 +52,6 @@ import * as oboe from 'oboe';
 import {col_to_base} from "../constants";
 import {generate} from "shortid";
 
-const scan_status = {
-    'PENDING': 'pending',
-    'SCANNING': 'scanning...',
-    'ERROR': 'error',
-    'COMPLETE': 'done!'
-};
 
 export default {
     name: "SingleSequencer",
@@ -64,7 +63,6 @@ export default {
             active_read: null,
             brick_error : null,
             blast_pending: false,
-            scan_status,
             col_to_base,
             query_id: null
         }

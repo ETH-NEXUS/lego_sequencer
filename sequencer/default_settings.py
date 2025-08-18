@@ -4,13 +4,13 @@
 
 # if true, mocks communication with the LEGO brick, producing sequences from real organisms
 # (see support.ev3_reader.SAMPLE_SEQUENCES for details)
-MOCK_COMM =  False
+MOCK_COMM =  True
 
 # if MOCK_COMM=True, the mock process duration is multiplied by this value (>1.0 slower, <1.0 faster)
 TIME_MOD = 0.1
 
 # if MOCK_COMM=True and if USE_RANDOM_SEQ=True, uses a random sequence of {A,C,T,G} instead of a sample sequence
-USE_RANDOM_SEQ = True
+USE_RANDOM_SEQ = False
 
 
 # -----------------------------------

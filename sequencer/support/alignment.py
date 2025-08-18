@@ -1,151 +1,258 @@
 from Bio import Align
 from Bio.Seq import Seq
 import json
+import math
+import os
 
 # Load the examples JSON
-with open("sequence_examples.json") as f:
+EXAMPLES_PATH = os.path.join(os.path.dirname(__file__), "sequence_examples.json")
+
+with open(EXAMPLES_PATH) as f:
     EXAMPLES = json.load(f)
 
 
+def make_blast_mock_single_hit(
+    alignment,name='Homo sapiens'
+) -> dict:
+    """
+    Build a minimal BLAST JSON-like dict with a single hit, keeping only fields you care about.
+    - Uses gapped qseq/hseq and a BLAST-style midline.
+    - Computes identity, align_len, gaps (count of '-' chars across both strings).
+    """
+    # Basic sanity checks
+    qseq = str(alignment[0])
+    hseq = str(alignment[1])
+    midline = get_match_line(hseq, qseq)  # midline is the match line
+    score = alignment.score
+    hit_len = (
+        alignment.aligned[1][0][1] - alignment.aligned[1][0][0] + 1
+    )  # 1-based length of the hit
+    align_len = len(qseq)  # length of the query sequence
+    return {
+        "BlastOutput2": [
+            {
+                "report": {
+                    "results": {
+                        "search": {
+                            "hits": [
+                                {
+                                    "description": [{"sciname": name}],
+                                    "hsps": [
+                                        {
+                                            "score": score,
+                                            "query_strand": "Plus",
+                                            "hit_strand": "Plus",
+                                            "align_len": align_len,
+                                            "qseq": qseq,
+                                            "midline": midline,
+                                            "hseq": hseq,
+                                        }
+                                    ],
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+
+    }
+
+
+def blast_mock_json(**kwargs) -> str:
+    """Convenience wrapper: returns a pretty-printed JSON string."""
+    return json.dumps(make_blast_mock_single_hit(**kwargs), indent=2)
+
+
+def var_string(var):
+    """
+    Convert a variant tuple to a string representation.
+    """
+    if var[2] == "sub":
+        return f"c.{var[0]}{var[3]}"
+    if var[0] != var[1]:
+        return f"c.{var[0]}_{var[1]}{var[2]}{var[3]}"
+    return f"c.{var[0]}{var[2]}{var[3]}"
+
+
 def _normalize_nt(s: str) -> str:
-    return ''.join(s.split()).upper().replace('U', 'T')
+    return "".join(s.split()).upper().replace("U", "T")
 
-def _gapped_core_from_blocks(query: str, ref: str, alignment):
-    """
-    Build CORE gapped strings from alignment.aligned blocks.
-    - Uses only the aligned region (no leading/trailing soft-clips).
-    - Preserves internal indels as '-' on the opposite strand.
-    """
-    q_blocks = alignment.aligned[0]  # list of [start, end] rows for query
-    r_blocks = alignment.aligned[1]  # list of [start, end] rows for ref
-    if len(q_blocks) == 0:
-        return "", ""
 
-    q_out, r_out = [], []
+def get_aa(seq):
+    return str(Seq(seq).translate())
 
-    # Start with the first aligned block
-    q0s, q0e = q_blocks[0]
-    r0s, r0e = r_blocks[0]
-    q_out.append(query[q0s:q0e])
-    r_out.append(ref[r0s:r0e])
 
-    # Handle internal gaps between consecutive blocks
-    for i in range(len(q_blocks) - 1):
-        q_cur_s, q_cur_e = q_blocks[i]
-        r_cur_s, r_cur_e = r_blocks[i]
-        q_next_s, q_next_e = q_blocks[i + 1]
-        r_next_s, r_next_e = r_blocks[i + 1]
+def minmax(x):
+    if not x:
+        return None, None
+    return min(x), max(x)
 
-        q_gap = q_next_s - q_cur_e  # insertion in query relative to ref
-        r_gap = r_next_s - r_cur_e  # deletion in query (insertion in ref)
 
-        if q_gap > 0 and r_gap == 0:
-            # Query has extra bases; ref has a gap
-            q_out.append(query[q_cur_e:q_next_s])
-            r_out.append("-" * q_gap)
-        elif r_gap > 0 and q_gap == 0:
-            # Ref has extra bases; query has a gap
-            q_out.append("-" * r_gap)
-            r_out.append(ref[r_cur_e:r_next_s])
-        elif q_gap == 0 and r_gap == 0:
-            # Directly adjacent blocks (rare but possible)
-            pass
-        else:
-            # Both advanced -> unexpected for contiguous block model; be safe:
-            # align the shorter chunk and gap the remainder
-            k = min(q_gap, r_gap)
-            if k > 0:
-                q_out.append(query[q_cur_e:q_cur_e+k])
-                r_out.append(ref[r_cur_e:r_cur_e+k])
-            if q_gap > k:
-                q_out.append(query[q_cur_e+k:q_next_s])
-                r_out.append("-" * (q_gap - k))
-            if r_gap > k:
-                q_out.append("-" * (r_gap - k))
-                r_out.append(ref[r_cur_e+k:r_next_s])
-
-        # Append the next aligned block
-        q_out.append(query[q_next_s:q_next_e])
-        r_out.append(ref[r_next_s:r_next_e])
-
-    return "".join(q_out), "".join(r_out)
-
-def check_sequence(seq: str, percent_identity=0.7):
+def find_best_match(seq: str, percent_identity=0.7):
     """
     Align 'seq' to known examples (local alignment).
     Returns:
       - best example name (or 'general')
       - list of nt variants (within core alignment only)
       - AA sequence from aligned query (trimmed to full codons)
-      - aligned query string (gapped, core only)
-      - aligned reference string (gapped, core only)
+      - AA sequence from query (aligned part)
+      - AA offset in query
     """
     seq = _normalize_nt(seq)
     min_score = len(seq) * percent_identity  # minimum score for a decent alignment
     aligner = Align.PairwiseAligner()
     aligner.mode = "local"
     aligner.match_score = 1
-    aligner.mismatch_score = -1
-    aligner.open_gap_score = -5
+    aligner.mismatch_score = -2
+    aligner.open_gap_score = -3
     aligner.extend_gap_score = -2
 
-    best_name, best_alignment, best_ref = "general", None, None
+    best_name, best_alignment = "general", None
     for name, data in EXAMPLES.items():
         ref = _normalize_nt(data["sequence"])
         offset = data["codon_offset"]
         alns = aligner.align(seq, ref)
-        if alns[0].score< min_score:
+        if alns[0].score < min_score:
             continue
         if alns and (best_alignment is None or alns[0].score > best_alignment.score):
-            best_name, best_alignment, best_ref = name, alns[0], ref
+            best_name, best_alignment, example, gene = name, alns[0], data.get("example"), data.get("gene")
 
     if best_alignment is None:
         # No decent local alignment; return general + whole-seq translation
-        return "general", [],None, None, None, None
+        return "general", [], None, None, None, None, None, None, None
 
     # Build core gapped strings (no soft-clipped ends)
-    aln_query, aln_ref = _gapped_core_from_blocks(seq, best_ref, best_alignment)
+    aln_query, aln_ref = best_alignment[0], best_alignment[1]
 
     # Variant calling within the core region only
-    variants = []
-    ref_nt_idx = offset*3  # 1-based position within the *reference core alignment*
-    for q_nt, r_nt in zip(aln_query, aln_ref):
+    variants = []  # list of variant tuples: (start, end, type, seq)
+    ref_nt_idx = offset * 3  # 1-based position within the *reference core alignment*
+
+    for i, (q_nt, r_nt) in enumerate(zip(aln_query, aln_ref)):
         if r_nt != "-":
             ref_nt_idx += 1
         if q_nt == r_nt:
             continue
         if q_nt != "-" and r_nt != "-":
-            variants.append(f"c.{r_nt}{ref_nt_idx}{q_nt}")          # substitution
-        elif q_nt == "-" and r_nt != "-":
-            variants.append(f"c.del{r_nt}{ref_nt_idx}")             # deletion vs ref
-        elif q_nt != "-" and r_nt == "-":
-            variants.append(f"c.ins{q_nt}{ref_nt_idx}")       # insertion vs ref
+            variants.append(
+                (ref_nt_idx, ref_nt_idx, "sub", f"{r_nt}>{q_nt}", [i])
+            )  # substitution
+        elif q_nt == "-":
+            variants.append(
+                (ref_nt_idx, ref_nt_idx, "del", r_nt, [i])
+            )  # deletion vs ref
+        elif r_nt == "-":
+            variants.append(
+                (ref_nt_idx, ref_nt_idx, "ins", q_nt, [i])
+            )  # insertion vs ref
+    indel = None
+    variants_joined = []
+    for var in variants:
+        if indel is not None and var[2] == indel[2] and indel[1] + 1 == var[0]:
+            # join indels together
+            indel = (
+                indel[0],
+                var[0],
+                indel[2],
+                indel[3] + var[3],
+                indel[4] + var[4],
+            )  # extend the indel
+        elif var[2] != "sub":
+            if indel is not None:
+                variants_joined.append(indel)
+            indel = var
+        else:
+            if indel:
+                variants_joined.append(indel)
+                indel = None
+            variants_joined.append(var)
+    if indel:
+        variants_joined.append(indel)
 
-    # Translate aligned query region (strip gaps; keep whole codons)
     q_nogap = aln_query.replace("-", "")
-    #reference sequence is always in frame, we can check the query offset
+    r_nogap = aln_ref.replace("-", "")
+    # reference sequence is always in frame, we can check the query offset
     ref_start_nt = best_alignment.aligned[1][0][0]  # 0-based index into reference
-    print(ref_start_nt)
-    shift = ref_start_nt % 3
+    shift = 3 - ref_start_nt % 3
     if shift:
-        q_nogap = q_nogap[3-shift:]  # remove leading soft-clips
-    print(q_nogap)
-
+        q_nogap = q_nogap[shift:]  # remove leading soft-clips
+        r_nogap = r_nogap[shift:]  # remove leading soft-clips
     if len(q_nogap) % 3:
-        q_nogap = q_nogap[:len(q_nogap) - (len(q_nogap) % 3)]
-    aa_seq = str(Seq(q_nogap).translate())
+        q_nogap = q_nogap[: len(q_nogap) - (len(q_nogap) % 3)]
+    if len(r_nogap) % 3:
+        r_nogap = r_nogap[: len(r_nogap) - (len(r_nogap) % 3)]
+    aa_seq_q = get_aa(q_nogap)
+    aa_seq_r = get_aa(r_nogap)
+    aa_offset = math.ceil(ref_start_nt / 3) + offset  # 1-based AA offset in query
+    return (
+        best_name,
+        [var_string(v) for v in variants_joined],
+        aa_seq_q,
+        aa_seq_r,
+        aa_offset,
+        offset * 3,
+        best_alignment, 
+        example, 
+        gene,
+    )
 
-    return best_name, variants, aa_seq, aln_query, aln_ref, best_alignment
+
+def get_match_line(ref, query):
+    line = []
+    for r, q in zip(ref, query):
+        if r == q:
+            line.append("|")
+        elif r == "-" or q == "-":
+            line.append("-")
+        else:
+            line.append(".")
+    return "".join(line)
+
+
+def format_alignment(aln, offset=0):
+    """
+    Format the alignment for display.
+    Returns a tuple of (reference, match line, query).
+    """
+    ref = aln[1]
+    query = aln[0]
+    offset_ref = str(offset + aln.aligned[1][0][0])
+    offset_query = str(aln.aligned[0][0][0])
+    space = max(len(offset_ref), len(offset_query))
+    offset_ref = offset_ref.rjust(space)  # right-align offset
+    offset_query = offset_query.rjust(space)  # right-align offset
+
+    match_line = (" " * (space + 2)) + get_match_line(ref, query)
+
+    return f"{offset_ref}: {ref}\n{match_line}\n{offset_query}: {query}"
+
 
 if __name__ == "__main__":
     # Example usage
-    seq = "TGGGCTCCGGTGCGTTCGGCACGGTGTATAAGGGACTCTTGATCCCAGAAGGTGAGAAAGTTAAAATTCCCGTCGCTATCAAGGAATTAAGAGAAGCAACA"
-    name, variants, aa_seq, aligned_seq, aligned_ref, best_alignment = check_sequence(seq)
+    seq = "TGGGCTCCTTTGCGTTCACGGTGTATAAGGGACTCTTGATCCCAGAAGGAGTTAAAATTCCCGTCGCTATCAAGGAATTAAGAGAAGCAACA"
+    (
+        name,
+        variants,
+        aa_seq_q,
+        aa_seq_r,
+        aa_offset,
+        nt_offset,
+        aln,
+        example,
+        gene
+        
+    ) = find_best_match(seq, percent_identity=0.5)
+
     print(f"Best match: {name}")
     if name != "general":
-        print(f"Variants: {variants}")
-        print(f"Amino acid sequence: {aa_seq}")
-        print(f"Aligned sequence: {aligned_seq}")
-        print(f"Aligned reference: {aligned_ref}")
-        print(f"Best alignment: \n{best_alignment}")
-        print(f"Alignment score: {best_alignment.score}")
+        print(f'seq={seq}'),
+        print((f'matched_example={name}')),
+        print(f'username="Matthias Lienhard"'),
+        print(f'variants={", ".join(variants)}'),
+        print(f'aln=\n{format_alignment(aln, offset=nt_offset)}'),
+        print(f'aa_seq_q={aa_seq_q}'),
+        print(f'aa_seq_r={aa_seq_r}'),
+        print(f'aa_offset={aa_offset}'),
+        
+

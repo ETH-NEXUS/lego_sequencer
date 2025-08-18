@@ -21,6 +21,9 @@ from sequencer.support.blaster import blast_sequence, blast_sequence_local
 from sequencer.support.ev3_reader import query_full_sequence
 from sequencer.support.rag import generate_reflection
 from sequencer.support.translations import get_translation
+from sequencer.support.alignment import find_best_match, format_alignment
+from logging import getLogger
+logger = getLogger(__name__)
 
 
 GCE_KEY = None
@@ -120,11 +123,12 @@ def query_ev3():
 def blast():
     try:
         sequence = request.args['sequence']
+        lang = request.args.get('lang', 'en')
     except KeyError:
         return jsonify({'error': 'must specify a sequence'})
 
     def g():
-        gen = blast_sequence(sequence, timeout=BLAST_TIMEOUT)
+        gen = blast_sequence(sequence, lang=lang, timeout=BLAST_TIMEOUT)
         not_first = False
         yield "["
         for rec in gen:
@@ -255,20 +259,44 @@ def reflection():
     api_key = OPENROUTER_API_KEY
     seq = data.get("seq")
     species = data.get("species")
-    username = data.get("username")
+    username = data.get("username", 'a guest')
+    
+    
     current_app.logger.debug("Reflection request: %s", data)
 
     if not api_key or not seq or not species:
         return jsonify({"error": error_msg}), 400
-
-    # If species is a list, join it for the prompt
-    if isinstance(species, list):
-        species_str = ", ".join(species)
+    name, variants, aa_seq_q, aa_seq_r, aa_offset, offset, aln, example, gene = find_best_match(seq)
+    if name == "general":
+        # If species is a list, join it for the prompt
+        if isinstance(species, list):
+            species_str = ", ".join(species)
+        else:
+            species_str = str(species)
+        example_text = get_translation("examples.general", lang).format(
+            species=species_str,
+        )
     else:
-        species_str = str(species)
+        example_text = get_translation(f"examples.{example}", lang).format(
+            seq=seq,
+            variants=", ".join(variants),
+            aln=format_alignment(aln, offset=offset),
+            aa_seq_q=aa_seq_q,
+            aa_seq_r=aa_seq_r,
+            aa_offset=aa_offset,
+            nt_offset=offset * 3,
+            gene=gene,
+        )
+    logger.info("Reflection example text: %s", example_text)
+    reflection_template = get_translation("reflection_template", lang).format(
+        seq=seq,
+        username=username or "a guest of the anniversary party",
+        example=example_text
+    )
+    
 
     def g():
-        for chunk in generate_reflection(api_key, seq, species_str, username):
+        for chunk in generate_reflection(api_key, reflection_template=reflection_template, lang=lang):
             yield chunk
     return Response(stream_with_context(g()), mimetype='text/plain')
 

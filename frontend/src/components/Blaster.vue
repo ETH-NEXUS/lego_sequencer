@@ -5,12 +5,14 @@
         {{ letter }}
       </div>
 
-      <button class="btn btn-primary" @click="blast_sequence(sequence)" :disabled="blast_pending" style="white-space: nowrap;">
+      <button class="btn btn-primary" @click="blast_sequence(sequence, $i18n.locale)" :disabled="blast_pending" style="white-space: nowrap;">
         <span v-if="blast_pending">
           <fa-icon icon="circle-notch" spin />
-          Running BLAST...
+          {{ $t('blaster.running_blast') }}
         </span>
-        <span v-else>{{ blast_result ? 'Re-run' : 'Run'}} BLAST</span>
+        <span v-else>
+          {{ blast_result ? $t('blaster.rerun_blast') : $t('blaster.run_blast') }}
+        </span>
       </button>
     </div>
 
@@ -32,15 +34,23 @@
 
         <div class="results_pane" key="results_pane" v-if="blast_result">
           <div>
-            <h3 style="text-align: left;">Hits ({{ blast_unique_hits.length }}) (<a :href="job_url">view on NCBI</a>):</h3>
-            <hr />
-            <!-- Reflection component here -->
+            <!-- Reflection first -->
             <Reflection
               v-if="blast_result && blast_result.sequence && blast_unique_hits && blast_unique_hits.length"
               :sequence="blast_result.sequence"
               :species-list="blast_unique_hits.slice(0, 6).map(hit => hit.sciname)"
               :username="username"
             />
+
+            <!-- Hits header after Reflection -->
+            <h3 style="text-align: left;">
+              {{ $t('blaster.hits_header') }} ({{ blast_unique_hits.length }})
+              <span v-if="job_url">
+                (<a :href="job_url">{{ $t('blaster.view_on_ncbi') }}</a>)
+              </span>
+            </h3>
+            <hr />
+
             <div v-if="blast_unique_hits.length > 0">
               <div class="species-tiles">
                 <div class="species-tile" v-for="hit in blast_visible_unique_hits" :key="hit.sciname">
@@ -49,14 +59,14 @@
               </div>
               <div v-if="blast_visible_hits < blast_unique_hits.length">
                 <hr />
-                <button class="btn btn-primary" @click="show_more_results()">Show More Results</button>
+                <button class="btn btn-primary" @click="show_more_results()">
+                  {{ $t('blaster.show_more_results') }}
+                </button>
               </div>
             </div>
 
             <div v-else class="no-results">
-              No matching species found.
-              <br />
-              Try again with another sequence!
+              {{ $t('blaster.no_results') }}
             </div>
           </div>
         </div>
@@ -70,24 +80,24 @@
           <h4 v-if="data.hit.payload.hsps.length > 1">Hit #{{ (idx+1) }}</h4>
 
           <div class="sec">
-            <h3>Score:</h3>
+            <h3>{{ $t('blaster.score') }}:</h3>
             <div class="value">{{ hit.score }}</div>
           </div>
 
           <div class="sec">
-            <h3>Query/Hit Strand:</h3>
+            <h3>{{ $t('blaster.query_hit_strand') }}:</h3>
             <div class="value">{{ hit.query_strand }} / {{ hit.hit_strand }}</div>
           </div>
 
           <div class="sec">
-            <h3>Alignment:</h3>
+            <h3>{{ $t('blaster.alignment') }}:</h3>
 
             <div class="value">
               <div class="mini-sec">
-                <b>Length:</b><br />{{ hit.align_len }}
+                <b>{{ $t('blaster.length') }}:</b><br />{{ hit.align_len }}
               </div>
 
-              <div class="mini-sec"><b>Bases:</b>
+              <div class="mini-sec"><b>{{ $t('blaster.bases') }}:</b>
                 <div class="alignment">{{ hit.qseq + '\n' + hit.midline + '\n' + hit.hseq }}
                 </div>
               </div>
@@ -126,7 +136,7 @@ export default {
     },
     mounted() {
         if (this.sequence) {
-            this.blast_sequence(this.sequence);
+            this.blast_sequence(this.sequence, this.$i18n.locale);
         }
     },
     computed: {
@@ -135,6 +145,7 @@ export default {
                 return null;
 
             return (
+                console.log("BLAST hits: ", this.blast_result.data),
                 this.blast_result.data.BlastOutput2[0].report.results.search.hits.map(hit => ({
                     sciname: hit.description[0].sciname,
                     score: hit.hsps[0].score,
@@ -160,16 +171,16 @@ export default {
         }
     },
     methods: {
-        blast_sequence(bases) {
-            console.log("BLASTing ", bases);
+        blast_sequence(bases, lang) {
+            console.log("Analyzing sequence: ", bases);
 
-            oboe(`http://localhost:5000/api/blast?sequence=${bases}`)
+            oboe(`http://localhost:5000/api/blast?sequence=${bases}&lang=${lang}`)
                 .start(() => {
                     this.blast_pending = true;
                     this.blast_result = null;
                     this.blast_visible_hits = 6;
                     this.blast_status = [
-                        {status: `BLASTing ${bases}...`}
+                        {status: this.$t('blaster.analyzing_sequence', { bases }) }
                     ];
                 })
                 .node('!.{status}', rec => {

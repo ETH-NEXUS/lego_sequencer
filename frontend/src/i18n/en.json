@@ -19,12 +19,52 @@
     "name_placeholder": "enter your name here",
     "continue": "Continue",
     "scan_bricks": "Scan Bricks",
-    "blast_sequence": "BLAST Sequence",
+    "blast_sequence": "Sequence Analysis",
     "start_over": "Start Over"
   },
   "menu": {
     "home": "Home",
     "debug": "Debug",
     "designer": "Designer"
+  },
+  "sequencer": {
+    "scan_bricks": "Scan Bricks",
+    "rescan_bricks": "Re-scan Bricks",
+    "status": {
+      "pending": "Pending",
+      "scanning": "Scanning...",
+      "error": "Error",
+      "complete": "Done!"
+    },
+    "copy_sequence": "Copy to Clipboard",
+    "blast_sequence": "Analyze Sequence"
+  },
+  "blaster": {
+    "run_blast": "Analyze",
+    "rerun_blast": "Reanalyze",
+    "running_blast": "analyzing...",
+    "show_more_results": "Show More Results",
+    "no_results": "No matching species found.\nTry again with another sequence!",
+    "analyzing_sequence": "Analyzing {bases}",
+    "hits_header": "Hits",
+    "view_on_ncbi": "view on NCBI",
+    "score": "Score",
+    "query_hit_strand": "Query/Hit Strand",
+    "alignment": "Alignment",
+    "length": "Length",
+    "bases": "Bases"
+  },
+  "reflection": {
+    "title": "Sequence Reflection",
+    "generating": "Generating reflection...",
+    "regenerate": "Regenerate"
+  },
+  "species_result": {
+    "details": "Details",
+    "search": "Search",
+    "score": "Score",
+    "query_strand": "Query Strand",
+    "hit_strand": "Hit Strand",
+    "align_len": "Alignment Length"
   }
 }

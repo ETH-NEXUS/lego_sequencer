@@ -8,9 +8,9 @@
 
     <div class="card-body">
       <h5 class="card-title">{{ species }}</h5>
-      <p class="card-text">Score: {{ score }}</p>
-      <a href="#" @click.stop="show_details" class="btn btn-primary">Details</a>&nbsp;
-      <a :href="gsearch_url" target="_blank" class="btn btn-success">Search <fa-icon icon="external-link-alt" /></a>
+      <p class="card-text">{{ $t('species_result.score') }}: {{ score }}</p>
+      <a href="#" @click.stop="show_details" class="btn btn-primary">{{ $t('species_result.details') }}</a>&nbsp;
+      <a :href="gsearch_url" target="_blank" class="btn btn-success">{{ $t('species_result.search') }} <fa-icon icon="external-link-alt" /></a>
     </div>
   </div>
 </template>

@@ -16,7 +16,7 @@ for lang in LANGS:
             translations[lang]['funfacts'] = json.load(ff)
 
 
-def get_translation(key, lang='en'):
+def get_translation(key, lang):
     """
     Supports nested keys with dot notation, e.g. 'reflection_template.general'
     """

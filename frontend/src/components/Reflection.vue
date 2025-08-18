@@ -1,9 +1,9 @@
 <template>
   <div class="reflection">
-    <h3>Sequence Reflection</h3>
-    <div v-if="loading">Generating reflection...</div>
+    <h3>{{ $t('reflection.title') }}</h3>
+    <div v-if="loading">{{ $t('reflection.generating') }}</div>
     <pre>{{ reflection }}</pre>
-    <button v-if="!loading" @click="generateReflection">Regenerate</button>
+    <button v-if="!loading" @click="generateReflection">{{ $t('reflection.regenerate') }}</button>
   </div>
   <Reflection
     v-if="blast_result && blast_result.sequence && blast_unique_hits && blast_unique_hits.length"
@@ -31,7 +31,8 @@ export default {
       console.log("Reflection props:", {
         sequence: this.sequence,
         speciesList: this.speciesList,
-        username: this.username
+        username: this.username,
+        lang: this.$i18n.locale
       });
 
       this.reflection = "";
@@ -42,7 +43,8 @@ export default {
         body: JSON.stringify({
           seq: this.sequence,
           species: this.speciesList,
-          username: this.username
+          username: this.username,
+          lang: this.$i18n.locale
         })
       });
       const reader = response.body.getReader();

@@ -19,12 +19,54 @@
     "name_placeholder": "Name da iigäh",
     "continue": "Wyter",
     "scan_bricks": "Bricks scanne",
-    "blast_sequence": "BLAST Sequenz",
+    "blast_sequence": "Sequenzanalyse",
     "start_over": "No mal aafange"
   },
   "menu": {
     "home": "Start",
     "debug": "Debug",
     "designer": "Designer"
+  },
+  "sequencer": {
+    "scan_bricks": "Bricks scanne",
+    "rescan_bricks": "No mal scanne",
+    "clear_runs": "Läufe lösche",
+    "blast": "BLAST",
+    "copy_sequence": "In Zwüschablage kopiere",
+    "blast_sequence": "Sequenz analysiere",
+    "status": {
+      "pending": "Wartend",
+      "scanning": "Am scanne...",
+      "error": "Fehler",
+      "complete": "Fertig!"
+    }
+  },
+  "blaster": {
+    "run_blast": "Analysiere",
+    "rerun_blast": "d'Analys nomol starte",
+    "running_blast": "d'Analys lauft...",
+    "show_more_results": "Mehr Resultat azeige",
+    "no_results": "Kei passende Spezies gfunde.\nProbier's nomol mit ere andere Sequenz!",
+    "analyzing_sequence": "Analysiere {bases}",
+    "score": "Alignment-Score",
+    "query_hit_strand": "Referenz-Strang / Read-Strang",
+    "alignment": "Alignment",
+    "length": "Länge",
+    "bases": "Basä",
+    "hits_header": "Treffer",
+    "view_on_ncbi": "Uf NCBI aaluege",
+  },
+  "species_result": {
+    "details": "Details",
+    "search": "Sueche",
+    "score": "Alignment-Score",
+    "query_strand": "Referenz-Strang",
+    "hit_strand": "Read-Strang",
+    "align_len": "Alignmentslänge"
+  },
+  "reflection": {
+    "title": "Sequenz-Reflexion",
+    "generating": "Reflexion wird generiert...",
+    "regenerate": "No mal generiere"
   }
 }

@@ -98,6 +98,9 @@ docker run \
   lego-sequencer
 
 docker ps                      # find the container ID or name
+#restart app:
+docker kill -s HUP <container_name>
+# stop
 docker stop <container_id>    # stop the running container
 ```
 

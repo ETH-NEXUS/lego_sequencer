@@ -8,7 +8,7 @@
           <span v-if="brick_error" class="error"><b>Error:</b> {{ brick_error }}</span>
           <span v-else>
             <fa-icon v-if="brick_status === 'SCANNING'" icon="spinner" pulse />
-            {{ scan_status[brick_status] }}
+            {{ $t('sequencer.status.' + brick_status.toLowerCase()) }}
           </span>
         </span>
     </div>
@@ -45,12 +45,7 @@ import * as oboe from 'oboe';
 import {col_to_base} from "../constants";
 import {generate} from "shortid";
 
-const scan_status = {
-    'PENDING': 'pending',
-    'SCANNING': 'scanning...',
-    'ERROR': 'error',
-    'COMPLETE': 'done!'
-};
+
 
 export default {
     name: "Sequencer",
@@ -61,7 +56,6 @@ export default {
             active_read: null,
             brick_error : null,
             blast_pending: false,
-            scan_status,
             selected_run: null
         }
     },
