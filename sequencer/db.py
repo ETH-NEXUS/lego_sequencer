@@ -13,7 +13,7 @@ db = SQLAlchemy()
 def init_db_command():
     """Clear the existing data and create new tables."""
     import sequencer.models
-    db.init_app(current_app)
+    print('Initializing the database...')
     db.create_all()
     click.echo('Initialized the database.')
 

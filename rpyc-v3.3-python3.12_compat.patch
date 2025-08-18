@@ -1,0 +1,270 @@
+diff --git a/demos/chat/server.py b/demos/chat/server.py
+index bff0442..b6be13e 100644
+--- a/demos/chat/server.py
++++ b/demos/chat/server.py
+@@ -1,5 +1,5 @@
+ from __future__ import with_statement
+-from rpyc import Service, async
++from rpyc import Service, async_
+ from rpyc.utils.server import ThreadedServer
+ from threading import RLock
+ 
+@@ -58,7 +58,7 @@ class ChatService(Service):
+         if self.token and not self.token.stale:
+             raise ValueError("already logged in")
+         if username in USERS_DB and password == USERS_DB[username]:
+-            self.token = UserToken(username, async(callback))
++            self.token = UserToken(username, async_(callback))
+             return self.token
+         else:
+             raise ValueError("wrong username or password")
+diff --git a/demos/filemon/server.py b/demos/filemon/server.py
+index dca8035..6c8f8e1 100644
+--- a/demos/filemon/server.py
++++ b/demos/filemon/server.py
+@@ -9,7 +9,7 @@ class FileMonitorService(rpyc.Service):
+             self.filename = filename
+             self.interval = interval
+             self.last_stat = None
+-            self.callback = rpyc.async(callback)   # make the callback async
++            self.callback = rpyc.async_(callback)   # make the callback async
+             self.active = True
+             self.thread = Thread(target = self.work)
+             self.thread.start()
+diff --git a/demos/web8/server.py b/demos/web8/server.py
+index 696a762..b7b2e5d 100644
+--- a/demos/web8/server.py
++++ b/demos/web8/server.py
+@@ -49,7 +49,7 @@ class Web8Service(rpyc.Service):
+ 
+         def bg_timer_thread():
+             while active[0]:
+-                rpyc.async(lbl3.set_text)("Server time is: %s" % (time.ctime(),))
++                rpyc.async_(lbl3.set_text)("Server time is: %s" % (time.ctime(),))
+                 time.sleep(1)
+ 
+         bg_thread = [None]
+diff --git a/docs/docs/async.rst b/docs/docs/async.rst
+index 84b08ce..a8f4c85 100644
+--- a/docs/docs/async.rst
++++ b/docs/docs/async.rst
+@@ -13,18 +13,18 @@ for its completion. However, since the synchronous modus-operandi is the most co
+ the library exposes a synchronous interface, and you'll need to explicitly enable
+ asynchronous behavior.
+ 
+-async()
++async_()
+ -------
+-The wrapper :func:`async <rpyc.utils.helpers.async>` takes any *callable* 
++The wrapper :func:`async_ <rpyc.utils.helpers.async_>` takes any *callable* 
+ :ref:`netref <api-netref>` and returns an asynchronous-wrapper around that netref. 
+ When invoked, this wrapper object dispatches the request and immediately returns an 
+-:class:`AsyncResult <rpyc.core.async.AsyncResult>`, instead of waiting for the response.
++:class:`AsyncResult <rpyc.core.async_module.AsyncResult>`, instead of waiting for the response.
+ 
+ Usage
+ ^^^^^
+ Create an async wrapper around the server's ``time.sleep`` function ::
+ 
+-    async_sleep = rpyc.async(conn.modules.time.sleep)
++    async_sleep = rpyc.async_(conn.modules.time.sleep)
+ 
+ And invoke it like any other function, but instead of blocking, it will immediately
+ return an ``AsyncResult`` ::
+@@ -47,11 +47,11 @@ The returns async proxies are cached by a `weak-reference <http://docs.python.or
+ Therefore, you must hold a strong reference to the returned proxy. Particularly, this means
+ that instead of doing ::
+ 
+-    res = async(conn.root.myfunc)(1,2,3)
++    res = async_(conn.root.myfunc)(1,2,3)
+    
+ Use ::
+ 
+-    myfunc_async = async(conn.root.myfunc)
++    myfunc_async = async_(conn.root.myfunc)
+     res = myfunc_async(1,2,3)
+ 
+ 
+diff --git a/docs/tutorial/tut5.rst b/docs/tutorial/tut5.rst
+index 12efc32..317437a 100644
+--- a/docs/tutorial/tut5.rst
++++ b/docs/tutorial/tut5.rst
+@@ -48,10 +48,10 @@ it's really not that scary::
+     <built-in function sleep>
+     >>> c.modules.time.sleep(2) # i block for two seconds, until the call returns
+     
+-     # wrap the remote function with async(), which turns the invocation asynchronous
+-    >>> asleep = rpyc.async(c.modules.time.sleep)
++     # wrap the remote function with async_(), which turns the invocation asynchronous
++    >>> asleep = rpyc.async_(c.modules.time.sleep)
+     >>> asleep
+-    async(<built-in function sleep>)
++    async_(<built-in function sleep>)
+     
+     # invoking async functions yields an AsyncResult rather than a value
+     >>> res = asleep(15)
+@@ -72,7 +72,7 @@ it's really not that scary::
+ 
+ And here's a more interesting snippet::
+ 
+-    >>> aint = rpyc.async(c.modules.__builtin__.int)  # async wrapper for the remote type int 
++    >>> aint = rpyc.async_(c.modules.__builtin__.int)  # async wrapper for the remote type int 
+     
+     # a valid call
+     >>> x = aint("8")
+@@ -125,7 +125,7 @@ consider the following ``FileMonitor`` example -- it monitors monitors a file
+                 self.filename = filename
+                 self.interval = interval
+                 self.last_stat = None
+-                self.callback = rpyc.async(callback)   # create an async callback
++                self.callback = rpyc.async_(callback)   # create an async callback
+                 self.active = True
+                 self.thread = Thread(target = self.work)
+                 self.thread.start()
+diff --git a/issues/issue14.py b/issues/issue14.py
+index 12f70f0..e03e1dd 100644
+--- a/issues/issue14.py
++++ b/issues/issue14.py
+@@ -12,7 +12,7 @@ def f(number):
+ 
+ @contextmanager
+ def ASYNC(func):
+-    wrapper = rpyc.async(func)
++    wrapper = rpyc.async_(func)
+     yield wrapper
+ 
+ if __name__ == "__main__":
+@@ -25,7 +25,7 @@ if __name__ == "__main__":
+     #print( f )
+     #print( f.value )
+ 
+-    f2 = rpyc.async(mod.f)
++    f2 = rpyc.async_(mod.f)
+     res = f2(n)
+     print res.value
+     
+diff --git a/issues/issue8_server.py b/issues/issue8_server.py
+index a36caf5..f794242 100644
+--- a/issues/issue8_server.py
++++ b/issues/issue8_server.py
+@@ -113,12 +113,12 @@ class MyService(rpyc.Service):
+     # we register py-notify signal with the handler this way, so when 
+     # closing we disconnect every connection 
+     def exposed_connect(self, signal, handler): 
+-        handler =  rpyc.async(handler) 
++        handler =  rpyc.async_(handler) 
+         self.signal_handler.append((signal, handler)) 
+         signal.connect(handler) 
+ 
+     def exposed_disconnect(self, signal, handler): 
+-        handler =  rpyc.async(handler) # py-notify disconnects passing 
++        handler =  rpyc.async_(handler) # py-notify disconnects passing 
+                                        # as argument the handler object, as we connected 
+         try: 
+             self.signal_handler.remove((signal, handler)) 
+diff --git a/rpyc/__init__.py b/rpyc/__init__.py
+index c04baf3..7ee5d54 100644
+--- a/rpyc/__init__.py
++++ b/rpyc/__init__.py
+@@ -47,7 +47,7 @@ from rpyc.core import (SocketStream, TunneledSocketStream, PipeStream, Channel,
+ from rpyc.utils.factory import (connect_stream, connect_channel, connect_pipes,
+     connect_stdpipes, connect, ssl_connect, discover, connect_by_service, connect_subproc, 
+     connect_thread, ssh_connect)
+-from rpyc.utils.helpers import async, timed, buffiter, BgServingThread, restricted
++from rpyc.utils.helpers import async_, timed, buffiter, BgServingThread, restricted
+ from rpyc.utils import classic
+ from rpyc.version import version as __version__
+ 
+diff --git a/rpyc/core/__init__.py b/rpyc/core/__init__.py
+index 92f568c..8b89abd 100644
+--- a/rpyc/core/__init__.py
++++ b/rpyc/core/__init__.py
+@@ -2,6 +2,6 @@ from rpyc.core.stream import SocketStream, TunneledSocketStream, PipeStream
+ from rpyc.core.channel import Channel
+ from rpyc.core.protocol import Connection
+ from rpyc.core.netref import BaseNetref
+-from rpyc.core.async import AsyncResult, AsyncResultTimeout
++from rpyc.core.async_module import AsyncResult, AsyncResultTimeout
+ from rpyc.core.service import Service, VoidService, SlaveService
+ from rpyc.core.vinegar import GenericException
+diff --git a/rpyc/core/async.py b/rpyc/core/async_module.py
+similarity index 100%
+rename from rpyc/core/async.py
+rename to rpyc/core/async_module.py
+diff --git a/rpyc/utils/helpers.py b/rpyc/utils/helpers.py
+index 75cedc9..d36e89d 100644
+--- a/rpyc/utils/helpers.py
++++ b/rpyc/utils/helpers.py
+@@ -95,10 +95,10 @@ class _Async(object):
+     def __call__(self, *args, **kwargs):
+         return asyncreq(self.proxy, HANDLE_CALL, args, tuple(kwargs.items()))
+     def __repr__(self):
+-        return "async(%r)" % (self.proxy,)
++        return "async_(%r)" % (self.proxy,)
+ 
+ _async_proxies_cache = WeakValueDict()
+-def async(proxy):
++def async_(proxy):
+     """
+     Returns an asynchronous "version" of the given proxy. Invoking the returned
+     proxy will not block; instead it will return an 
+@@ -110,7 +110,7 @@ def async(proxy):
+     
+     Example::
+     
+-        async_sleep = rpyc.async(conn.modules.time.sleep)
++        async_sleep = rpyc.async_(conn.modules.time.sleep)
+         res = async_sleep(5)
+     
+     .. _async_note:
+@@ -119,11 +119,11 @@ def async(proxy):
+        In order to avoid overloading the GC, the returned asynchronous wrapper is 
+        cached as a weak reference. Therefore, do not use::
+            
+-           rpyc.async(foo)(5)
++           rpyc.async_(foo)(5)
+        
+        Always store the returned asynchronous wrapper in a variable, e.g. ::
+        
+-           a_foo = rpyc.async(foo)
++           a_foo = rpyc.async_(foo)
+            a_foo(5)
+     """
+     pid = id(proxy)
+@@ -158,7 +158,7 @@ class timed(object):
+ 
+     __slots__ = ("__weakref__", "proxy", "timeout")
+     def __init__(self, proxy, timeout):
+-        self.proxy = async(proxy)
++        self.proxy = async_(proxy)
+         self.timeout = timeout
+     def __call__(self, *args, **kwargs):
+         res = self.proxy(*args, **kwargs)
+diff --git a/tests/test_async.py b/tests/test_async.py
+index 1a4f9a8..9d23d05 100644
+--- a/tests/test_async.py
++++ b/tests/test_async.py
+@@ -5,8 +5,8 @@ import rpyc
+ class TestAsync(unittest.TestCase):
+     def setUp(self):
+         self.conn = rpyc.classic.connect_thread()
+-        self.a_sleep = rpyc.async(self.conn.modules.time.sleep)
+-        self.a_int = rpyc.async(self.conn.builtin.int)
++        self.a_sleep = rpyc.async_(self.conn.modules.time.sleep)
++        self.a_int = rpyc.async_(self.conn.builtin.int)
+ 
+     def tearDown(self):
+         self.conn.close()
+diff --git a/tests/test_threads.py b/tests/test_threads.py
+index ed6600f..073f9a9 100644
+--- a/tests/test_threads.py
++++ b/tests/test_threads.py
+@@ -7,7 +7,7 @@ import rpyc
+ class MyService(rpyc.Service):
+     class exposed_Invoker(object):
+         def __init__(self, callback, interval):
+-            self.callback = rpyc.async(callback)
++            self.callback = rpyc.async_(callback)
+             self.interval = interval
+             self.active = True
+             self.thread = threading.Thread(target=self.work)
