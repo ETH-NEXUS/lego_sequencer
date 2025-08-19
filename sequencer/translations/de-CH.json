@@ -8,7 +8,7 @@
   "api_error": "Oise AI-Gschichteerzähler het grad e Problem. (Server-Fehler: {error}) Probier's bald nomol.",
   "unexpected_error": "Öpis Unerwartets isch passiert. Kei Sorge – s Problem isch bi üs! (Fehler: {error})",
   "blast_cached": "Sequenz im Cache gfunde, wird zrugggäh.",
-  "waiting_for_results": "Warte {} Sekunde für d'Resultate vo {}...<br>{}",
+  "waiting_for_results": "Warte {} Sekunde für d'Resultate vo {}...",
   "timeout": "Timeout vo %d Sekunde erreicht, während mir uf d'Resultate warte",
   "not_ready": "Nöd parat, versuech's nomol in %d Sekunde (%d Sekunde bisher)...",
   "no_hits_found": "Kei Treffer gfunde",

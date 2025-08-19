@@ -6,8 +6,11 @@ from time import sleep
 from ..default_settings import MOCK_COMM, TIME_MOD, USE_RANDOM_SEQ
 
 COLORS = ('unknown', 'black', 'blue', 'green', 'yellow', 'red', 'white', 'brown')
-BRICK_DEG = 54
-NUM_BRICKS = 28
+#BRICK_DEG = 54
+#NUM_BRICKS = 28
+
+BRICK_DEG = 133
+NUM_BRICKS = 22
 
 # conn = rpyc.classic.connect('ev3dev.local')
 # ev3 = conn.modules['ev3dev.ev3']
@@ -22,17 +25,15 @@ class FatalDisconnectException(Exception):
 def get_connection():
     global g_conn, g_ev3
     fail_count = 0
-
     while fail_count < 3:
         try:
-            g_ev3.Sound.beep()
+            g_ev3.Sound.speak('Welcome to the NEXUS sequencer demonstration')
             return g_conn, g_ev3
         except (AttributeError, socket.gaierror):
             # increment the fail counter and try again, up to a max of 3 times
             fail_count += 1
             g_conn = rpyc.classic.connect('ev3dev.local')
             g_ev3 = g_conn.modules['ev3dev.ev3']
-
     raise FatalDisconnectException("Disconnected and ran out of reconnect attempts")
 
 

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2ae8ad8b9d236990465956cb9f699499451598b29040c4bd411819643d7ad7ee"
+            "sha256": "29eca03622f8f5def63d7cd679f79672c34268143257d6bf1143ffaec055a309"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -734,7 +734,7 @@
         },
         "rpyc": {
             "editable": true,
-            "path": "./rpyc"
+            "path": "./rpyc3.3"
         },
         "six": {
             "hashes": [

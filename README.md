@@ -44,14 +44,29 @@ When you're done with your demo, press the back button (the top-left button on t
 buttons). You'll again see the file browser. Hold down the back button until a popup menu appears with power options
 (i.e., "Power Off", "Reboot", and "Cancel"); press the center button again to turn the unit off.
 
+### Network issues
+on the macbook the device should appear as a network device. I had issues with the self asisgned IP (yellow dot at the device in the network settings). Setting the IP manually to 192.168.2.1 and the mask to 255.255.255.0 solved the issue
+
 ### SSH
 For debugging and setup, ssh to the ev3 can be helpful, with usb connected run: `ssh robot@ev3dev.local` default pw:`maker`.
 
 ## Webserver Setup
 
-Inside the source directory, run the following to install the required Python libraries for the project:
+Inside the source directory, run the following to install the required Python libraries for the project.
 
-```pipenv install```
+The communication with the ev3 depends on a legacy version of rpyc which we need to patch to make it compatible with python > 3.6
+```bash
+# 1) clone old version of rpyc
+git clone https://github.com/tomerfiliba-org/rpyc.git
+cd rpyc
+git checkout v3.3
+# Apply local patch
+patch -p1 < ../rpyc-v3.3-python3.12-compat.patch 
+# install the env (local rpyc is referenced in Pipfile)
+cd ..
+pipenv install
+```
+
 
 Finally, run the following script to start the webserver:
 
