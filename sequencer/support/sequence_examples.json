@@ -9,7 +9,7 @@
     "example": "cftr",
     "gene": "CFTR",
     "codon_offset": 550,
-    "sequence": "GGTGCATTTGGCATATGCTTTGGCACCATTAAAGAAGAAGGCATCATCATG"
+    "sequence": "GGTCAACGAGCAAGAATTTCTTTAGCAAGAGCAGTATACAAAGATGCTGATTTGTAT"
   },
   "Warfarin VKORC1 Exon1": {
     "gene": "VKORC1",
