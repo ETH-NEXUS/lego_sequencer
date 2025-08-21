@@ -7,11 +7,7 @@ from time import sleep, time
 import requests
 
 from sequencer.cache import cache
-from sequencer.support.alignment import (
-    find_best_match,
-    make_blast_mock_single_hit,
-    format_alignment,
-)
+from sequencer.support.alignment import query_sequence
 from sequencer.support.translations import get_translation
 
 # above disclaimer copied from NCBI's web_blast.pl reference file.
@@ -109,30 +105,35 @@ def blast_sequence(sequence, lang, database="nr", program="megablast", timeout=N
     :return: incremental status updates of the form {'status': <text>}, eventually ending in {'results': [...]}
     """
     # check if the sequence is example
-    (name, variants, aa_seq_q, aa_seq_r, aa_offset, nt_offset, aln, example, gene) = (
-        find_best_match(sequence, percent_identity=0.5)
+    name, gene, variants, protein_variants, effect, json_data = query_sequence(
+        sequence
     )
-    # get a random fun fact
-    fun_fact = get_fun_fact(lang=lang)
+
 
     if name != "general":
         sleep(2)
         yield {"status": get_fun_fact(lang=lang)}
         sleep(3)
+        if protein_variants:
+            var_string = get_translation("protein_variants", lang).format(
+                nt_variants=", ".join(variants), protein_variants=", ".join(protein_variants)
+            )
+        elif variants:
+            var_string = get_translation("variants", lang).format(
+                nt_variants=", ".join(variants)
+            )
+        else:
+            var_string = get_translation("no_variants", lang)
         yield {
             "status": get_translation("blast_example", lang).format(
-                name=gene,
-                variants=variants,
-                aa_seq_q=aa_seq_q,
-                aa_seq_r=aa_seq_r,
-                aa_offset=aa_offset,
-                nt_offset=nt_offset,
-            )
+                name=gene, variants=var_string)
         }
+        
         sleep(3)
         # mock the blast result, return the best alignment, and terms to google images
         search_term=(get_translation("examples_search_term", lang).format(gene=gene))
-        yield {"results": make_blast_mock_single_hit(aln, search_term)}
+        json_data["BlastOutput2"][0]["report"]["results"]["search"]["hits"][0]["description"][0]["sciname"] = search_term
+        yield {"results": json_data}
         return
     else:
         yield {"status": get_translation("blast_started", lang)}

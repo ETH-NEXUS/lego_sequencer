@@ -14,7 +14,9 @@
   "no_hits_found": "No hits found",
   "examples_search_term": "{gene} variants",
   "blast_started": "BLAST started, waiting for results...",
-  "blast_example": "Hey, that looks familiar! Your read seems to align to  {name}, with some variants: {variants}",
+  "blast_example": "Hey, that looks familiar! Your read seems to align to {name}{variants}",
+  "variants": ", with some variants {variants}",
+  
   "reflection_template": "As part of the 10th anniversary celebration of NEXUS personalized health at ETH Zurich, we\u2019re showcasing a playful demo using a LEGO EV3-based DNA sequencer.\n\n{username}, a guest of the anniversary party, just built a LEGO stack, and the sequencer interpreted the colors into this DNA sequence:\n{seq}\n\n{example}\n\nNow, imagine you're a scientist, explaining what this curious finding might suggest.\nWrite a light-hearted reflection\u2014part scientific musing, part humorous speculation, at most 5 sentences.\nYou can speculate about the origin of the sequence, somewhere in the Z\u00fcrich area, or Switzerland.\nThe tone should be thoughtful, slightly whimsical, and accessible to the general public.\nAvoid fantasy storytelling, but feel free to make playful leaps in logic that spark curiosity.",
   "examples": {
     "general": "Surprisingly, a BLAST search shows similarities to genetic material from the following species: {species}.",

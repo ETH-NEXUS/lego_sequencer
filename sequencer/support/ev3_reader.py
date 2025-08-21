@@ -6,11 +6,11 @@ from time import sleep
 from ..default_settings import MOCK_COMM, TIME_MOD, USE_RANDOM_SEQ
 
 COLORS = ('unknown', 'black', 'blue', 'green', 'yellow', 'red', 'white', 'brown')
-#BRICK_DEG = 54
-#NUM_BRICKS = 28
+BRICK_DEG = 54
+NUM_BRICKS = 28
 
-BRICK_DEG = 133
-NUM_BRICKS = 22
+#BRICK_DEG = 133
+#NUM_BRICKS = 22
 
 # conn = rpyc.classic.connect('ev3dev.local')
 # ev3 = conn.modules['ev3dev.ev3']
@@ -84,11 +84,20 @@ def query_sequencer():
 
 SAMPLE_SEQUENCES = [
     # >ENA|BAA20512|BAA20512.1 Cyprinus carpio (common carp) alpha-globin
-    "CTGGGCTCCGGTGCGTTCGGCACGGTGTATAAGGGACTCTTGATCCCAGAAGGTGAGAAAGTTAAAATTCCCGTCGCTATCAAGGAATTAAGAGAAGCAACA",
-    "GGTGCATTTGGCATATGCTTTGGCACCATTAAAGAAGAAGGCATCATCATG",
-    "CACGTGAAGGCGGCGCGCGCCCGGGACCGGGATTACCGCGCGCTCTGCGACGTGGGC",
-    "GTCCAGAGATACATTGACCTTCTCCCCACCAGCCTGCCCATGCAGTGACCTGTGAC",
-    "GATATTTCAACTGAAATCTATCAGGCCGGTAGCACACCTTGTAATGGTGTTGAAGGTTTTAATTGTTACTTTCCTTTACAATCATATGGTTTCCAACCCACTAATGGTGTTGGTTACCAACCATAC",
+        "GGTCAACGAGCAAGAATTTCTTTAGCAAGAGCA",
+        "GATCAATGAGCAAGAATTTCTTTAGCAAGAGCA",
+        "CTGGGCTCCGGTGCGTTCGGCACGGTG",
+        "CTGAGCTCCGGTGCGTTCGGCACGGTG",
+        "CCCGTCGCTATCAAGGAATTAAGAGAAGCAACATCTCCGAAAGCCAAC",
+        "CCCGTCGCTATCAAGACATCTCCGAAAGCCAAC",
+        "GCCGGTAGCACACCTTGTAATGGTGTTGAAGGT",
+        "GCCGGTGGCACACCTTGTAATGGTGTTGAAGGT",
+        "GCCGGTAACACACCTTGTAATGGTGTTGAAGGT",
+        "GCCGGTAGCACACCTTGTAATGGTGTTCAAGGT",
+        "CACGTGAAGGCGGCGCGCGCCCGGGACC",
+        "CACTTGAAGGCGGCGCGCGCCCGGGACC",
+        "GTCCAGAGATACATTGACCTTCTCCCCA",
+        "GTCCAGAGATACCTTGAGCTTCTCCCCA",
     ''.join(random.choice('ACGT') for _ in range(200))  # <-- random sequence
 ]
 
@@ -108,7 +117,7 @@ def get_example(n_var=0):
     Returns a random example sequence from SAMPLE_SEQUENCES, with n_var random variants.
     """
     seq = random.choice(SAMPLE_SEQUENCES)
-    start = random.randint(0, len(seq) - NUM_BRICKS)
+    start = 0 if len(seq) <= NUM_BRICKS else random.randint(0, len(seq) - NUM_BRICKS)
     seq = seq[start:start + NUM_BRICKS]
     if n_var > 0:
         seq = list(seq)
@@ -125,7 +134,7 @@ def query_sequencer_mock():
 
     # randomly choose one of our sequences
     # add whitespace adapters to the beginning and end
-    n_var = 4
+    n_var = 0
     src_seq = (
         get_example(n_var) if not USE_RANDOM_SEQ else
         "".join([random.choice("ACTG") for _ in range(NUM_BRICKS)])
