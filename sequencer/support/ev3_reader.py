@@ -4,6 +4,13 @@ import rpyc
 
 from time import sleep
 from ..default_settings import MOCK_COMM, TIME_MOD, USE_RANDOM_SEQ
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 COLORS = ('unknown', 'black', 'blue', 'green', 'yellow', 'red', 'white', 'brown')
 BRICK_DEG = 54
@@ -82,24 +89,24 @@ def query_sequencer():
     # rewind back to white
     m.run_to_rel_pos(position_sp=BRICK_DEG * NUM_BRICKS, speed_sp=900, stop_action="hold")
 
-SAMPLE_SEQUENCES = [
+SAMPLE_SEQUENCES = {
     # >ENA|BAA20512|BAA20512.1 Cyprinus carpio (common carp) alpha-globin
-        "GGTCAACGAGCAAGAATTTCTTTAGCAAGAGCA",
-        "GATCAATGAGCAAGAATTTCTTTAGCAAGAGCA",
-        "CTGGGCTCCGGTGCGTTCGGCACGGTG",
-        "CTGAGCTCCGGTGCGTTCGGCACGGTG",
-        "CCCGTCGCTATCAAGGAATTAAGAGAAGCAACATCTCCGAAAGCCAAC",
-        "CCCGTCGCTATCAAGACATCTCCGAAAGCCAAC",
-        "GCCGGTAGCACACCTTGTAATGGTGTTGAAGGT",
-        "GCCGGTGGCACACCTTGTAATGGTGTTGAAGGT",
-        "GCCGGTAACACACCTTGTAATGGTGTTGAAGGT",
-        "GCCGGTAGCACACCTTGTAATGGTGTTCAAGGT",
-        "CACGTGAAGGCGGCGCGCGCCCGGGACC",
-        "CACTTGAAGGCGGCGCGCGCCCGGGACC",
-        "GTCCAGAGATACATTGACCTTCTCCCCA",
-        "GTCCAGAGATACCTTGAGCTTCTCCCCA",
-    ''.join(random.choice('ACGT') for _ in range(200))  # <-- random sequence
-]
+        "CFTR_wt": "GGTCAACGAGCAAGAATTTCTTTAGCAAGAGCA",
+        "CFTR_p.G551D_p.R553*": "GATCAATGAGCAAGAATTTCTTTAGCAAGAGCA",
+        "EGFR_wt":"CTGGGCTCCGGTGCGTTCGGCACGGTG",
+        "EGFR_p.G719S":"CTGAGCTCCGGTGCGTTCGGCACGGTG",
+        "EGFR_wt":"CCCGTCGCTATCAAGGAATTAAGAGAAGCAACATCTCCGAAAGCCAAC",
+        "EGFR_p.E746_A750del":"CCCGTCGCTATCAAGGAATTAAGAGAAGCAACATCTCCGAAAGCCAAC",
+        "COV_S_wt":"GCCGGTAGCACACCTTGTAATGGTGTTGAAGGT",
+        "COV_S_p.S477G":"GCCGGTGGCACACCTTGTAATGGTGTTGAAGGT",
+        "COV_S_p.S477N":"GCCGGTAACACACCTTGTAATGGTGTTGAAGGT",
+        "COV_S_p.E484Q":"GCCGGTAGCACACCTTGTAATGGTGTTCAAGGT",
+        "VKORC1_wt":"CACGTGAAGGCGGCGCGCGCCCGGGACC",
+        "VKORC1_p.V29L":"CACTTGAAGGCGGCGCGCGCCCGGGACC",
+        "CYP29C_wt":"GTCCAGAGATACATTGACCTTCTCCCCA",
+        "CYP29C_p.I359L_p.D360E":"GTCCAGAGATACCTTGAGCTTCTCCCCA",
+        "random": ''.join(random.choice('ACGT') for _ in range(200))  # <-- random sequence
+}
 
 # SAMPLE_SEQUENCES = [
 #     "ATGAGTCTCTCTGATAAGGACA"
@@ -116,7 +123,9 @@ def get_example(n_var=0):
     """
     Returns a random example sequence from SAMPLE_SEQUENCES, with n_var random variants.
     """
-    seq = random.choice(SAMPLE_SEQUENCES)
+    seq_name = random.choice(list(SAMPLE_SEQUENCES.keys()))
+    seq = SAMPLE_SEQUENCES[seq_name]
+    logger.info(f"Selected example sequence: {seq_name} with {n_var} variants")
     start = 0 if len(seq) <= NUM_BRICKS else random.randint(0, len(seq) - NUM_BRICKS)
     seq = seq[start:start + NUM_BRICKS]
     if n_var > 0:

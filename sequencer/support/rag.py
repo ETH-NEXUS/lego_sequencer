@@ -1,12 +1,20 @@
 from openai import OpenAI
 from openai import APIError, RateLimitError, APIConnectionError, BadRequestError, AuthenticationError
-from sequencer.support.translations import get_translation
+from sequencer.support.translations import get_translation, join_list
+# set up logging
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 
 
-def generate_reflection(api_key, reflection_template, max_tokens=512, temperature=0.7, username=None, lang='en'):
+def generate_reflection(api_key, seq, aln_infos, species, username, max_tokens=512, temperature=0.7, lang='en'):
 
-    
+    reflection_template = compile_reflection_template(seq, aln_infos, species, username, lang)
     try:
         client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
@@ -44,7 +52,39 @@ def generate_reflection(api_key, reflection_template, max_tokens=512, temperatur
     except Exception as e:
         yield get_translation("unexpected_error", lang).format(error=e)
 
+def compile_reflection_template(seq, aln_infos, species, username, lang):
+        example, gene, variants, protein_var, domains_hit, json_data = aln_infos
+        if example == "general":
+            intro=get_translation("reflection_template.intro.general", lang).format(username=username, seq=seq)
+            example_text = get_translation("reflection_template.examples.general", lang).format(species=join_list(species, lang))
+            role=get_translation("reflection_template.role.general", lang)
+        else:
+            intro=get_translation("reflection_template.intro.examples", lang).format(username=username, seq=seq)
 
+            example_text = get_translation(f"reflection_template.examples.{example}", lang).format(
+                gene=gene,
+                domain_phrase=get_translation("reflection_template.domains", lang).format(domains=join_list(domains_hit.keys(), lang)) if domains_hit else ""
+            )
+            if variants:
+                var_list = join_list(variants, lang)
+                if protein_var:
+                    prot_list = join_list(protein_var, lang)
+                    if example == "sars2_rbd":
+                        protein_phrase = get_translation("reflection_template.sars_protein_variants", lang).format(variants=prot_list)
+                    else:
+                        protein_phrase = get_translation("reflection_template.protein_variants", lang).format(variants=prot_list)
+                else:
+                    protein_phrase = get_translation("reflection_template.no_protein_variants", lang)
+                var_phrase = get_translation("reflection_template.variants", lang).format(variants=var_list, protein_phrase=protein_phrase)
+            else:
+                var_phrase = get_translation("reflection_template.no_variants", lang)
+            example_text += "\n\n" + var_phrase    
+            role=get_translation("reflection_template.role.examples", lang)
+        # If species is a list, join it for the prompt
+        reflection_template = f'{intro}\n\n{example_text}\n\n{role}'
+        logger.info("Reflection example text: %s", reflection_template)
+        return reflection_template
+    
 
 if __name__ == "__main__":
     # Example usage
@@ -52,7 +92,9 @@ if __name__ == "__main__":
     api_key = "<YOUR_API_KEY>"
     seq = "TGCTGTCAGTAGATCCCAAGCG"
     species = '"Notamacropus eugenii", "Ornithodoros turicata", "Candidatus Spongiihabitans", "Paenibacillus nuruki"'
-
-    for part in generate_reflection(api_key, seq, species):
+    username = "Alice"
+    lang = "en"
+    aln_infos = ("general", "unknown", [], [], {})
+    for part in generate_reflection(api_key, aln_infos=aln_infos, species=species, username=username, lang=lang):
         if part is not None:
             print(part, end='', flush=True)

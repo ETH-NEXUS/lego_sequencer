@@ -16,12 +16,10 @@
       </button>
     </div>
 
-    <div v-if="blast_status || blast_hits" class="status_and_results">
+    <div v-if="!blast_result" class="status_and_results">
       <transition-group name="slideup" mode="out-in">
-
-        <div class="status_pane" key="status_pane" v-if="!blast_result || !blast_first_five || blast_first_five.length <= 0">
+        <div class="status_pane" key="status_pane">
           <h4>Status:</h4>
-
           <div class="status_scroller" ref="status_scroller">
             <transition-group name="slideright" tag="ol">
               <li v-for="(rec, idx) in blast_status" :key="idx">
@@ -29,49 +27,48 @@
                 <fa-icon v-if="blast_pending && idx === blast_status.length - 1" icon="circle-notch" spin />
               </li>
             </transition-group>
-            </div>
+          </div>
         </div>
+      </transition-group>
+    </div>
 
-        <div class="results_pane" key="results_pane" v-if="blast_result">
-          <div>
-            <!-- Reflection first -->
-            <Reflection
-              v-if="blast_result && blast_result.sequence && blast_unique_hits && blast_unique_hits.length"
-              :sequence="blast_result.sequence"
-              :species-list="blast_unique_hits.slice(0, 6).map(hit => hit.sciname)"
-              :username="username"
-            />
+    <div class="results_pane" key="results_pane" v-if="blast_result">
+      <div>
+        <!-- Reflection first -->
+        <Reflection
+          v-if="blast_result && blast_result.sequence && blast_unique_hits && blast_unique_hits.length"
+          :sequence="blast_result.sequence"
+          :species-list="blast_unique_hits.slice(0, 6).map(hit => hit.sciname)"
+          :username="username"
+        />
 
-            <!-- Hits header after Reflection -->
-            <h3 style="text-align: left;">
-              {{ $t('blaster.hits_header') }} ({{ blast_unique_hits.length }})
-              <span v-if="job_url">
-                (<a :href="job_url">{{ $t('blaster.view_on_ncbi') }}</a>)
-              </span>
-            </h3>
+        <!-- Hits header after Reflection -->
+        <h3 style="text-align: left;">
+          {{ $t('blaster.hits_header') }} ({{ blast_unique_hits.length }})
+          <span v-if="job_url">
+            (<a :href="job_url">{{ $t('blaster.view_on_ncbi') }}</a>)
+          </span>
+        </h3>
+        <hr />
+
+        <div v-if="blast_unique_hits.length > 0">
+          <div class="species-tiles">
+            <div class="species-tile" v-for="hit in blast_visible_unique_hits" :key="hit.sciname">
+              <SpeciesResult :species="hit.sciname" :score="hit.score" :payload="hit.payload" v-on:show-details="show_details" />
+            </div>
+          </div>
+          <div v-if="blast_visible_hits < blast_unique_hits.length">
             <hr />
-
-            <div v-if="blast_unique_hits.length > 0">
-              <div class="species-tiles">
-                <div class="species-tile" v-for="hit in blast_visible_unique_hits" :key="hit.sciname">
-                  <SpeciesResult :species="hit.sciname" :score="hit.score" :payload="hit.payload" v-on:show-details="show_details" />
-                </div>
-              </div>
-              <div v-if="blast_visible_hits < blast_unique_hits.length">
-                <hr />
-                <button class="btn btn-primary" @click="show_more_results()">
-                  {{ $t('blaster.show_more_results') }}
-                </button>
-              </div>
-            </div>
-
-            <div v-else class="no-results">
-              {{ $t('blaster.no_results') }}
-            </div>
+            <button class="btn btn-primary" @click="show_more_results()">
+              {{ $t('blaster.show_more_results') }}
+            </button>
           </div>
         </div>
 
-      </transition-group>
+        <div v-else class="no-results">
+          {{ $t('blaster.no_results') }}
+        </div>
+      </div>
     </div>
 
     <Sidebar ref="sidedar">

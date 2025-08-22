@@ -12,7 +12,7 @@ with open(EXAMPLES_PATH) as f:
 
 
 def make_blast_mock_single_hit(
-    alignment,name='Homo sapiens'
+    alignment,gene='Gene'
 ) -> dict:
     """
     Build a minimal BLAST JSON-like dict with a single hit, keeping only fields you care about.
@@ -20,7 +20,7 @@ def make_blast_mock_single_hit(
     - Computes identity, align_len, gaps (count of '-' chars across both strings).
     """
     # Basic sanity checks
-    qseq, midline, hseq = format_alignment(alignment)
+    qseq, midline, hseq, start_gaps, end_gaps = format_alignment(alignment, gene)
     score = alignment.score
     hit_len = (
         alignment.aligned[1][0][1] - alignment.aligned[1][0][0] + 1
@@ -34,13 +34,14 @@ def make_blast_mock_single_hit(
                         "search": {
                             "hits": [
                                 {
-                                    "description": [{"sciname": name}],
+                                    "description": [{"sciname": gene}],
                                     "hsps": [
                                         {
                                             "score": score,
                                             "query_strand": "Plus",
                                             "hit_strand": "Plus",
                                             "align_len": align_len,
+                                            "aln_start" : start_gaps +1,
                                             "qseq": qseq,
                                             "midline": midline,
                                             "hseq": hseq,
@@ -153,7 +154,7 @@ def get_idx(idx,n, aln_ref, aln_query):
     return pos
 
 
-def get_protein_variants(variants, aln_ref, aln_query, cds_start, domains):
+def get_protein_variants(variants, aln_ref, aln_query, cds_start):
     """
     Convert nucleotide variants to protein variants.
     Returns a list of tuples: (codon, aa_ref, aa_alt, type, description)
@@ -209,9 +210,8 @@ def get_protein_variants(variants, aln_ref, aln_query, cds_start, domains):
             #insertion
             protein_variants.append(f'p.{var[2][0]+1}ins{aa_q}')
         codons_set.add(var[2][0]+1)
-    domains_hit = {k:v for c in codons_set for k,v in domains.items() if v["start_codon"]<= c and v["end_codon"] >= c}
 
-    return protein_variants, domains_hit
+    return protein_variants
 
 def get_variants(alignment, name):
     cds_start= EXAMPLES[name].get("cds_start", 0)
@@ -245,8 +245,22 @@ def get_variants(alignment, name):
     if current_var:
         variants.append(resolve_variant(current_var))
     print('\n'.join(f"Variant: {v}" for v in variants))
-    domains = EXAMPLES[name].get("features", {})
-    return variants, get_protein_variants(variants, aln_ref, aln_query, cds_start=cds_start, domains=domains)
+
+    return variants, get_protein_variants(variants, aln_ref, aln_query, cds_start=cds_start)
+
+def format_nt_variant(var):
+    '''format a variant tuple into a HGVS string representation'''
+    pos, vartype, bases= var[0][0], var[3], var[4]
+    if vartype == "sub":
+        vartype = ""
+    elif vartype == "ins":
+        pos = f'{pos}_{pos+1}'
+    else:
+        if var[0][0] != var[0][1]:
+            pos = f'{var[0][0]}_{var[0][1]}'
+        if vartype == "del":
+            bases = ""
+    return f'r.{pos}{vartype}{bases}'
 
 def get_match_line(ref, query):
     line = []
@@ -268,33 +282,43 @@ def _format_alignment(aln):
     query=query[start_gaps:-end_gaps]
     return ref, query, start_gaps, end_gaps
 
-def format_alignment(aln, offset=0, seq=''):
+def format_alignment(aln,  seq=''):
     """
     Format the alignment for display.
     Returns a tuple of (reference, match line, query).
     """
     ref, query, start_gaps, end_gaps = _format_alignment(aln)
-    offset_ref = f'{seq} {offset + aln.aligned[1][0][0]+ start_gaps}'
+    offset_ref = f'{seq} {start_gaps+1}'
     #offset_query = str(aln.aligned[0][0][0])
     offset_query = "read"
     space = max(len(offset_ref), len(offset_query))
     offset_ref = offset_ref.rjust(space)  # right-align offset
     offset_query = offset_query.rjust(space)  # right-align offset
     match_line = (" " * (space + 2)) + get_match_line(ref, query)
-    return (f'{offset_ref}: {ref}', match_line, f'{offset_query}: {query}')
+    return (f'{offset_ref}: {ref}', match_line, f'{offset_query}: {query}', start_gaps, end_gaps)
 
 
 def query_sequence(seq):
     name, aln = find_best_match(seq, percent_identity=0.5)
     if name != "general":
-        var, (protein_var, domains)=get_variants(aln, name)
+        domains = EXAMPLES[name].get("features", {})
         gene = EXAMPLES[name].get("gene", "unknown")
+        cds_start= EXAMPLES[name].get("cds_start", 0)
+        example = EXAMPLES[name]["example"]
         json_data = make_blast_mock_single_hit(
             alignment=aln,
-            name=EXAMPLES[name]["gene"]
+            gene=gene
         )
-        return name, gene, var, protein_var, domains, json_data
+        aln_infos = json_data["BlastOutput2"][0]["report"]["results"]["search"]["hits"][0]["hsps"][0]
+        aln_start_codon= (aln_infos["aln_start"]- cds_start)//3
+        aln_end_codon= (aln_infos["aln_start"]- cds_start + aln_infos["align_len"] -1)//3
+        domains_hit = {k:v for k,v in domains.items() if overlap((v["start_codon"], v["end_codon"]), (aln_start_codon, aln_end_codon))}
+        var, protein_var=get_variants(aln, name)
+        return example, gene, [format_nt_variant(v) for v in var], protein_var, domains_hit, json_data
     return "general", "unknown", [], [], {}, {}
+
+def overlap(interval1, interval2):
+    return interval1[0] <= interval2[1] and interval2[0] <= interval1[1]
 
 if __name__ == "__main__":
     # Example usage
@@ -321,16 +345,20 @@ if __name__ == "__main__":
 
     for seq in seqL:
 
-        name, aln = find_best_match(seq, percent_identity=0.5)
-        gene= EXAMPLES.get(name, {}).get("gene", "unknown")
-        print(f"Best match: {name}")
+        # name, aln = find_best_match(seq, percent_identity=0.5)
+        # gene= EXAMPLES.get(name, {}).get("gene", "unknown")
+
+        name, gene, var, protein_var, domains, json_data = query_sequence(seq)
+        print(f"===================\nBest match: {name}")
         if name != "general":
-            var, protein_var, domains=get_variants(aln, name)
- 
+            # var, (protein_var, domains)=get_variants(aln, name)
+            aln = json_data["BlastOutput2"][0]["report"]["results"]["search"]["hits"][0]["hsps"][0]
             print(f'seq={seq}'),
             print((f'matched_example={name}')),
-            print(f'variants={", ".join(protein_var)}'),
-            print('aln=\n'+'\n'.join(format_alignment(aln, seq=f'{gene}'))),
+            print(f'variants={", ".join(var)}')
+            print(f'protein variants={", ".join(protein_var)}'),
+            print(f'domains={domains}')
+            print('aln=\n'+'\n'.join([aln['qseq'], aln['midline'], aln['hseq']])),
 
         #print(f'aa_seq_q={aa_seq_q}'),
         #print(f'aa_seq_r={aa_seq_r}'),

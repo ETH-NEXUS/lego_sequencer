@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def create_app(test_config=None):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True, static_folder='static')
     app.config.from_object('sequencer.default_settings')
     app.config.from_mapping(
         SECRET_KEY='dev',

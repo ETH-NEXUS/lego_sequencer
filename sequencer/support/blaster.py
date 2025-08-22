@@ -8,7 +8,7 @@ import requests
 
 from sequencer.cache import cache
 from sequencer.support.alignment import query_sequence
-from sequencer.support.translations import get_translation
+from sequencer.support.translations import get_translation, join_list
 
 # above disclaimer copied from NCBI's web_blast.pl reference file.
 # code adapted to python3 by faisal alq.
@@ -105,7 +105,7 @@ def blast_sequence(sequence, lang, database="nr", program="megablast", timeout=N
     :return: incremental status updates of the form {'status': <text>}, eventually ending in {'results': [...]}
     """
     # check if the sequence is example
-    name, gene, variants, protein_variants, effect, json_data = query_sequence(
+    name, gene, variants, protein_variants, domains, json_data = query_sequence(
         sequence
     )
 
@@ -113,14 +113,10 @@ def blast_sequence(sequence, lang, database="nr", program="megablast", timeout=N
     if name != "general":
         sleep(2)
         yield {"status": get_fun_fact(lang=lang)}
-        sleep(3)
-        if protein_variants:
-            var_string = get_translation("protein_variants", lang).format(
-                nt_variants=", ".join(variants), protein_variants=", ".join(protein_variants)
-            )
-        elif variants:
+        sleep(5)
+        if variants:
             var_string = get_translation("variants", lang).format(
-                nt_variants=", ".join(variants)
+                variants=join_list(variants, lang)
             )
         else:
             var_string = get_translation("no_variants", lang)

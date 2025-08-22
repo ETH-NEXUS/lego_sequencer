@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
       <a class="navbar-brand" href="/">
         <img :src="require('./assets/nexus_icon.png')" alt="ETH NEXUS" class="d-inline-block align-top" height="30" />
-        LEGO Sequencer v0.1
+        LEGO Sequencer 2.0
       </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>

@@ -1,5 +1,6 @@
 {
   "missing_params": "Es fählt nöötigi Parameter",
+  "and": " und ",
   "not_a_sequence": "Oh nei, mir hei kei DNA-Sequenz als Text becho, sondern {seq}. Kei Sorge – s Problem isch bi üs!",
   "rate_limit": "Uups! Oise Gschichte-AI bruucht e churzi Pause. Z vil Aafrogä sind cho, mir hei s Limit erreicht. Probier's gli nomol!",
   "connection_error": "Oh nei! Mir hei d'Verbindig zu oisem AI-Gschichteerzähler verlore. Bitte lueg d'Internet oder probier's spöter nomol.",
@@ -14,14 +15,32 @@
   "no_hits_found": "Kei Treffer gfunde",
   "examples_search_term": "{gene} Varianten",
   "blast_started": "BLAST gestartet, warte uf d'Resultate...",
-  "blast_example": "Hey, das sieht bekannt us! Dini Sequenz scheint sich mit {name} z'überlappe, mit einige Varianten: {variants}",
-  "reflection_template": "Zum 10-Jahres-Jubiläum vo NEXUS Personalised Health an dr ETH Zürich zeiged mir es spielerischs Demo mit eme LEGO EV3-basiärte DNA-Sequänzer.\n\n{username}, es Gäst vom Jubiläumsfäscht, het grad es LEGO-Türmli baut, und dr Sequänzer het d’Farbekombination i die DNA-Sequenz übersetzt: \n{seq}\n\n{example}\n\nStell der jetzt vor, du bisch e Wüsseschafter*in, wo das Fundstück erläuteret.\nSchriib e locker-lustigi Reflexion – es bitzeli wissenschaftlichs Grüble, es bitzeli humorvolli Spekulation, höchstens 5 Sätz.\nDu chasch drüber spekuliere, wo d’Sequenz chönnt härcho, villicht irgendwo us em Raum Züri oder i de Schwiiz.\nD’Ton soll überleit, e chli schmunzlig, und für alli guet verständlich sii. Schriib **unbedingt i Mundart (Schwiizerdütsch)** – kei Hochdütsch.\nVermeid Fantasy-Gschichte, aber du dörfsch gern uf spielerischi Gedanke spränge, wo Neugierig machä.",
-  "examples": {
-    "general": "Überraschenderwiis zeigt dr BLAST-Verglich Ähnlichkeite mit genetischem Material vo folgnde Arte: {species}.",
-    "egfr": "D’Sequenz passt zur EGFR-Gen, genau im Kinase-Bereich (Exone 18–19), wo hüfig wichtigi Verändrigä ufträte. Zu dene ghöred z. B.: • G719X (G719A/C/S) im Exon 18 – chliini “Schaltchraube” bim ATP-Bindigs-Ort, wo dr Motor a bitz anders lauft, • E709K oder E709_T710delinsD – Ändrig bim “Scharnier” vo dr Struktur, • klassischi Exon-19-Deletionen (z. B. E746_A750del, L747_A750insP, L747_T751del) – chliini Loop-Stückli, wo d’Kinase meh “a” schaltet. In dim Fall het’s follgendi Variante: {variants}. Uf Protein-Ebeni isch d’beobachtet Aminosäure-Sequenz ({aa_seq_q}) anders als d’Referenz ({aa_seq_r}), aafangend bi Position {aa_offset}. So Verändrigä chönd d’EGFR-Signali beeinflusse und au e Hinweis für Diagnostik oder Therapie sii.",
-    "cftr": "D’Sequenz passt zum CFTR-Gen, wo bi Verändrigä zu Cystischer Fibrose führt – es Krankheitsbild, wo d’Chlorid-Transport stört, zäh Schleim bildt und zu Lunge- und andere Organ-Problem führt. I enem chline Abschnitt vom Exon 10 chönd mehri nahe beieinanderliegende Variante ufträte: • Faltungs-Defekt (ΔF508-ähnlich) – s’Protein klappt sich nöd richtig, • Gating-Defekt (G551D-ähnlich) – s’Protein isch da, aber öppis blockiert s’Uf- und Zuegah, • Spleiss-Veränderig – s’Protein wird gar nöd oder nur chlii produziert. In dim Fall het’s follgendi Variante: {variants}. Uf Protein-Ebeni isch d’beobachtet Aminosäure-Sequenz ({aa_seq_q}) anders als d’Referenz ({aa_seq_r}), aafangend bi Position {aa_offset}. So Veränderige chönd dr CFTR vo funktionstüchtig zu fehlerhaft oder inaktiv verändere. Heutig Therapie richtet sich immer meh nach dr Art vo dr Mutation – z. B. “Corrector” für d’Faltig und “Potentiator” fürs Gating – und macht CFTR zu enem Paradebeispiel für personalisiereti Medizin.",
-    "warfarin": "D’Sequenz passt zum {gene}-Gen, wo e wichtigi Roll bi dr Empfindlichkeit uf s’Blutverdünnungs-Mittel Warfarin spielt. Veränderige im VKORC1 (AA 28–46) chönd d’Vitamin-K-Reduktase so verändere, dass sie Vitamin K weniger oder meh effizient recyclet – das wirkt sich uf d’Blutgerinnig uus. Veränderige im CYP2C9 (AA 355–363) chönd d’Abbau-Gschwindigkeit vo Warfarin verändere, und so wie lang s’Mittel im Körper wirkt. In dim Fall het’s follgendi Variante: {variants}. Uf Protein-Ebeni isch d’beobachtet Aminosäure-Sequenz ({aa_seq_q}) anders als d’Referenz ({aa_seq_r}), aafangend bi Position {aa_offset}. So Veränderige chönd e Standard-Dosierig z’starch (Blutigs-Risiko) oder z’schwach (Gerinnigs-Risiko) mache – drum wird Warfarin hüt oft genetisch dosiert.",
-    "sars2_rbd": "D’Sequenz passt zum Spike-Protein vom SARS-CoV-2-Virus, und zwar im RBD-Abschnitt (Rezeptor-Bindigs-Domän), wo für d’Bindig a d’ACE2-Rezeptore und d’Immunerkennig wichtig isch. Im Abwasser-Monitoring luegt me gezielt uf so Schlüsselmuta­tione, will d’genomischä Schnipsel vo ville Lüüt chömed und oft unvollständig sind. Mutationen im RBD chönd verschidnigs bewirke – z. B. K417T/N, L452R/Q, E484K/Q, F490S, N501Y – aber zäme ergä sie e eindeutigs “Fingerprint” für e Variante. In dim Fall het’s follgendi Mutatione: {variants}. Bekannti RBD-Fingerprint (AA 417–554) sind zum Bispil: • Alpha (B.1.1.7): N501Y • Beta (B.1.351): K417N, E484K, N501Y • Gamma (P.1): K417T, E484K, N501Y • Delta (B.1.617.2): L452R, T478K • Omicron (BA.1): G339D, S371L, S373P, S375F, K417N, N440K, G446S, S477N, T478K, E484A, Q493R, G496S, Q498R, N501Y, Y505H • Mu (B.1.621): R346K, E484K, N501Y • Iota (B.1.526): E484K • Lambda (C.37): L452Q, F490S. Uf Protein-Ebeni isch d’beobachtet Aminosäure-Sequenz ({aa_seq_q}) anders als d’Referenz ({aa_seq_r}), aafangend bi Position {aa_offset}. So Fingerprints erlaube s’Monitoring vo mehri Variante im Abwasser und hälfed, neui Stämme z’entdecke, bevor sie i de klinische Diagnostik uufträted."
-  }
+  "blast_example": "Hey, das sieht bekannt us! Dini Sequenz scheint sich mit {name} z'überlappe{variants}.",
+  "variants": ", mit ein paar Varianti: {variants}",
+  "no_variants": ", ohni Varianti",
+  "protein_variants": ", wo z Protein änderet: {protein_variants}",
+  "reflection_template": {
+    "intro": {
+      "general": "NEXUS Personalized Health an de ETH Züri zeigt es LEGO-DNA-Sequenzier-Demo, woni Gäst us LEGO-Stäbe tüend staplä. Dä Stapel wird mit em Scanner i e DNA-Sequenz übersetzt. {username} hät grad dä folgende Read gmacht:\n{seq}",
+      "examples": "Im Rahmen vo ere edukative Demo vo NEXUS Personalized Health an de ETH Züri hät {username} grad dä folgende cDNA-Abschnitt sequenziert:\n{seq}"
+    },
+    "domains": ", spezifisch i äm Teil vom {domains}",
+    "examples": {
+      "general": "Überraschenderwiis zeigt dr BLAST-Vergleich Ähnligkeite mit genetischem Material vo dere folgende Spezies: {species}.",
+      "egfr": "Tatsächlich stimmt d Sequenz mit {gene}{domain_phrase} überei. Das Gen zeigt oft aktivierendi Substitutiöne wie **p.G719S** im Exon 18 oder chlii Delätiöne im Exon 19, wo d Kinase im 'on'-Modus halte.",
+      "cftr": "Tatsächlich stimmt d Sequenz mit {gene}{domain_phrase} überei, wo scho e chlini Änderig chani zu zystischer Fibrose führe. Zum Bispiel macht **p.G551D** e Kanal, wo z selten öppnet, während **p.R553*** s Protein grad abbricht.",
+      "warfarin": "Tatsächlich stimmt d Sequenz mit em {gene}{domain_phrase} überei, wo d Empfindlechkeit uf s Medikament Warfarin beeinflusst. Varianti wie **VKORC1 p.V29L** chönd d Vitamin-K-Verwertig verändere, während **CYP2C9 p.I359L** oder **p.D360E** s Abbou vom Medikament verlangsame — drum chönd Standard-Dosä z stark oder z schwach sii.",
+      "sars2_rbd": "Tatsächlich stimmt d Sequenz mit em SARS-CoV-2 Spike-Protein {gene}{domain_phrase} überei. Im Abwasser findemer chliini RNA-Bruchstück, wo so Mutations-'Fingerprints' enthalte — wie **E484Q** oder **S477N/S477G**. **E484Q** passt oft zu **Kappa-ähnliche** Viruse (B.1.617.1), während **S477N** typisch isch für **Iota-ähnlichi** Linige (B.1.526); **S477G** isch weniger eindeutig und brucht meh Marker. Mit so Fingerprints chamer d Virus oft scho identifiziere, bevor d klinische Genome bestätigt sind."
+    },
+    "variants": "I däm Fall enthält d Sequenz wichtigi Varianti: {variants}. {protein_phrase}",
+    "no_variants": "I däm Fall entspricht dr Read dr kanonische Sequenz.",
+    "sars_protein_variants": "Die Mutatiöne bilde e Fingerprint: {variants}.",
+    "protein_variants": "Uf Proteine-Ebene führt das zu Aminosäure-Änderige: {variants}.",
+    "no_protein_variants": "Die Varianti verändered s Protein nöd.",
+    "role": {
+      "general": "Stell der vor, du bisch e Wüsseschaftler und versuechsch z erkläre, was dä Fund chönnt bedeute.\nSchriib e leichtherzigi Reflexion uf Schwiizerdütsch— halb wüsseschaftlichs Gedankespiel, halb humorvolli Spekulation — maximal 5 Sätz.\nFokusier vor allem uf d überraschendi Mischung vo Spezies i dä BLAST-Treffer und uf die schräge Verbindige, wo mer chönnt zie.\nWenns passt, chasch höchstens ei Anspielig uf d'Schwiiz, d ETH Züri oder möglicha NEXUS-Projäkt mache — aber nur, wenn s vo de Spezies inspiriert wird.\nDr Ton söll überleitig, leicht schelmisch und guet verständlich für alli sii.\nVermeid Fantasie-Gschichtli, aber erlaube dir spielerischi Gedankesprüng, wo Neugier wecke.",
+      "examples": "Stell der vor, du bisch e Wüsseschaftler und versuechsch z erkläre, was dä Fund chönnt bedeute.\nSchriib e wissenschaftlichi Reflexion uf Schwiizerdütsch, maximal 5 Sätz.\nFokusier uf das konkrete Sequenz-Stück und sini Varianti, nöd uf d Sequenzier-Demo.\nDenk dra: Das isch für e edukativi Demo — drum söll dr Ton klar, überleitig und verständlich für alli sii."
+    }
+}
 }
   

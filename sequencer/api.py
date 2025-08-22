@@ -21,7 +21,7 @@ from sequencer.support.blaster import blast_sequence, blast_sequence_local
 from sequencer.support.ev3_reader import query_full_sequence
 from sequencer.support.rag import generate_reflection
 from sequencer.support.translations import get_translation
-from sequencer.support.alignment import find_best_match, format_alignment
+from sequencer.support.alignment import query_sequence
 from logging import getLogger
 logger = getLogger(__name__)
 
@@ -30,6 +30,13 @@ GCE_KEY = None
 GCE_PROJECT_CX = None
 BLAST_DB_DIR = None
 OPENROUTER_API_KEY = None
+EXAMPLE_SPECIES_IMAGES = {
+    "CFTR": "/static/images/cftr.jpg",
+    "EGFR": "/static/images/egfr.jpg",
+    "Spike": "/static/images/cov.png",
+    "CYP2C9": "/static/images/cyp2c9.jpg",
+    "VKORC1": "/static/images/vkorc1.png"
+}
 
 class APIBlueprint(Blueprint):
     def register(self, app, options, first_registration=False):
@@ -173,6 +180,11 @@ def species_img():
     species_name = request.args.get('species', '').strip()
     if not species_name:
         return jsonify(error='Missing "species" query parameter'), 400
+    # Check if species is an example and return local image
+    gene=species_name.split()[0]  # Get the first word as gene name
+    if gene in EXAMPLE_SPECIES_IMAGES:
+        return jsonify(results=[EXAMPLE_SPECIES_IMAGES[gene]])
+
 
     cache_key = 'SPECIES_IMG:{}'.format(species_name)
     if USE_GIS_CACHING:
@@ -266,37 +278,12 @@ def reflection():
 
     if not api_key or not seq or not species:
         return jsonify({"error": error_msg}), 400
-    name, variants, aa_seq_q, aa_seq_r, aa_offset, offset, aln, example, gene = find_best_match(seq)
-    if name == "general":
-        # If species is a list, join it for the prompt
-        if isinstance(species, list):
-            species_str = ", ".join(species)
-        else:
-            species_str = str(species)
-        example_text = get_translation("examples.general", lang).format(
-            species=species_str,
-        )
-    else:
-        example_text = get_translation(f"examples.{example}", lang).format(
-            seq=seq,
-            variants=", ".join(variants),
-            aln=format_alignment(aln, offset=offset),
-            aa_seq_q=aa_seq_q,
-            aa_seq_r=aa_seq_r,
-            aa_offset=aa_offset,
-            nt_offset=offset * 3,
-            gene=gene,
-        )
-    logger.info("Reflection example text: %s", example_text)
-    reflection_template = get_translation("reflection_template", lang).format(
-        seq=seq,
-        username=username or "a guest of the anniversary party",
-        example=example_text
-    )
+    # query the sequence to see if it's an example
+    aln_infos = query_sequence(seq)
     
 
     def g():
-        for chunk in generate_reflection(api_key, reflection_template=reflection_template, lang=lang):
+        for chunk in generate_reflection(api_key, seq=seq, aln_infos=aln_infos, species=species, username=username, lang=lang):
             yield chunk
     return Response(stream_with_context(g()), mimetype='text/plain')
 

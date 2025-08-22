@@ -15,6 +15,17 @@ for lang in LANGS:
         with open(funfacts_path, encoding='utf-8') as ff:
             translations[lang]['funfacts'] = json.load(ff)
 
+def join_list(items, lang):
+    items=list(items)
+    conjunction = get_translation("and", lang)
+    if len(items) == 0:
+        return ""
+    elif len(items) == 1:
+        return items[0]
+    elif len(items) == 2:
+        return f"{items[0]}{conjunction}{items[1]}"
+    else:
+        return ", ".join(items[:-1]) + f"{conjunction}{items[-1]}"   
 
 def get_translation(key, lang):
     """
