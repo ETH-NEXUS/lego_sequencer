@@ -105,7 +105,7 @@ def blast_sequence(sequence, lang, database="nr", program="megablast", timeout=N
     :return: incremental status updates of the form {'status': <text>}, eventually ending in {'results': [...]}
     """
     # check if the sequence is example
-    name, gene, variants, protein_variants, domains, json_data = query_sequence(
+    name, gene, variants, protein_variants, domains, codon_range,json_data = query_sequence(
         sequence
     )
 
