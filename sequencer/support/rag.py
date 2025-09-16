@@ -53,35 +53,41 @@ def generate_reflection(api_key, seq, aln_infos, species, username, max_tokens=5
         yield get_translation("unexpected_error", lang).format(error=e)
 
 def compile_reflection_template(seq, aln_infos, species, username, lang):
-        example, gene, variants, protein_var, domains_hit, json_data = aln_infos
+        example, gene, variants, protein_var, domains_hit, codon_range, json_data = aln_infos
         if example == "general":
             intro=get_translation("reflection_template.intro.general", lang).format(username=username, seq=seq)
-            example_text = get_translation("reflection_template.examples.general", lang).format(species=join_list(species, lang))
-            role=get_translation("reflection_template.role.general", lang)
+            main_text = get_translation("reflection_template.main_text.general", lang).format(species=join_list(species, lang))
+            role=get_translation("reflection_template.role.general", lang).format(username=username)
         else:
             intro=get_translation("reflection_template.intro.examples", lang).format(username=username, seq=seq)
-
-            example_text = get_translation(f"reflection_template.examples.{example}", lang).format(
+            main_text = get_translation("reflection_template.main_text.examples", lang).format(
                 gene=gene,
-                domain_phrase=get_translation("reflection_template.domains", lang).format(domains=join_list(domains_hit.keys(), lang)) if domains_hit else ""
+                domain_phrase=get_translation("reflection_template.domains", lang).format(domains=join_list(domains_hit.keys(), lang)) if domains_hit else "",
+                function_phrase=get_translation(f"reflection_template.function_phrase.{gene}", lang),
+                mutation_phrase=get_translation(f"reflection_template.mutation_phrase.{gene}", lang),
             )
+            codon_range_str = f"{codon_range[0]+1}-{codon_range[1]+1}"
             if variants:
                 var_list = join_list(variants, lang)
                 if protein_var:
                     prot_list = join_list(protein_var, lang)
-                    if example == "sars2_rbd":
-                        protein_phrase = get_translation("reflection_template.sars_protein_variants", lang).format(variants=prot_list)
-                    else:
-                        protein_phrase = get_translation("reflection_template.protein_variants", lang).format(variants=prot_list)
+                    prot_template='sars_protein_variants' if example == "sars2_rbd" else 'protein_variants'
+                    protein_phrase = get_translation(f"reflection_template.{prot_template}", lang).format(
+                            variants=prot_list
+                    )
                 else:
                     protein_phrase = get_translation("reflection_template.no_protein_variants", lang)
-                var_phrase = get_translation("reflection_template.variants", lang).format(variants=var_list, protein_phrase=protein_phrase)
+                var_phrase = get_translation("reflection_template.variants", lang).format(
+                    codon_range=codon_range_str,
+                    variants=var_list,
+                    protein_phrase=protein_phrase
+                )
             else:
-                var_phrase = get_translation("reflection_template.no_variants", lang)
-            example_text += "\n\n" + var_phrase    
-            role=get_translation("reflection_template.role.examples", lang)
+                var_phrase = get_translation("reflection_template.no_variants", lang).format(codon_range=codon_range_str)
+            main_text += "\n\n" + var_phrase    
+            role=get_translation("reflection_template.role.examples", lang).format(username=username)
         # If species is a list, join it for the prompt
-        reflection_template = f'{intro}\n\n{example_text}\n\n{role}'
+        reflection_template = f'{intro}\n\n{main_text}\n\n{role}'
         logger.info("Reflection example text: %s", reflection_template)
         return reflection_template
     

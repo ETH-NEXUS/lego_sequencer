@@ -21,26 +21,37 @@
   "protein_variants": ", wo z Protein änderet: {protein_variants}",
   "reflection_template": {
     "intro": {
-      "general": "NEXUS Personalized Health an de ETH Züri zeigt es LEGO-DNA-Sequenzier-Demo, woni Gäst us LEGO-Stäbe tüend staplä. Dä Stapel wird mit em Scanner i e DNA-Sequenz übersetzt. {username} hät grad dä folgende Read gmacht:\n{seq}",
-      "examples": "Im Rahmen vo ere edukative Demo vo NEXUS Personalized Health an de ETH Züri hät {username} grad dä folgende cDNA-Abschnitt sequenziert:\n{seq}"
+      "general": "NEXUS Personalized Health a dr ETH Zürich zeigt es LEGO-DNA-Sequenzier-Demo, wo d Gäst LEGO-Steine staplet, wo denn wie DNA-Sequenze uusecho wird. {username} het grad die folgende Sequenziert:\n{seq}",
+      "examples": "Im Rame vo dem Demo vo NEXUS Personalized Health a dr ETH Zürich het {username} grad s folgendi cDNA-Stück sequenziert:\n{seq}"
     },
-    "domains": ", spezifisch i äm Teil vom {domains}",
-    "examples": {
-      "general": "Überraschenderwiis zeigt dr BLAST-Vergleich Ähnligkeite mit genetischem Material vo dere folgende Spezies: {species}.",
-      "egfr": "Tatsächlich stimmt d Sequenz mit {gene}{domain_phrase} überei. Das Gen zeigt oft aktivierendi Substitutiöne wie **p.G719S** im Exon 18 oder chlii Delätiöne im Exon 19, wo d Kinase im 'on'-Modus halte.",
-      "cftr": "Tatsächlich stimmt d Sequenz mit {gene}{domain_phrase} überei, wo scho e chlini Änderig chani zu zystischer Fibrose führe. Zum Bispiel macht **p.G551D** e Kanal, wo z selten öppnet, während **p.R553*** s Protein grad abbricht.",
-      "warfarin": "Tatsächlich stimmt d Sequenz mit em {gene}{domain_phrase} überei, wo d Empfindlechkeit uf s Medikament Warfarin beeinflusst. Varianti wie **VKORC1 p.V29L** chönd d Vitamin-K-Verwertig verändere, während **CYP2C9 p.I359L** oder **p.D360E** s Abbou vom Medikament verlangsame — drum chönd Standard-Dosä z stark oder z schwach sii.",
-      "sars2_rbd": "Tatsächlich stimmt d Sequenz mit em SARS-CoV-2 Spike-Protein {gene}{domain_phrase} überei. Im Abwasser findemer chliini RNA-Bruchstück, wo so Mutations-'Fingerprints' enthalte — wie **E484Q** oder **S477N/S477G**. **E484Q** passt oft zu **Kappa-ähnliche** Viruse (B.1.617.1), während **S477N** typisch isch für **Iota-ähnlichi** Linige (B.1.526); **S477G** isch weniger eindeutig und brucht meh Marker. Mit so Fingerprints chamer d Virus oft scho identifiziere, bevor d klinische Genome bestätigt sind."
+    "main_text": {
+      "general": "Überraschenderwiis zeigt e BLAST-Suechi Ähnlichkeite mit genetischem Material vo dere/dene Spezies: {species}.",
+      "examples": "D Sequenz stimmt nämlich überii mit {gene}{domain_phrase}.\n{function_phrase}\n{mutation_phrase}"
     },
-    "variants": "I däm Fall enthält d Sequenz wichtigi Varianti: {variants}. {protein_phrase}",
-    "no_variants": "I däm Fall entspricht dr Read dr kanonische Sequenz.",
-    "sars_protein_variants": "Die Mutatiöne bilde e Fingerprint: {variants}.",
-    "protein_variants": "Uf Proteine-Ebene führt das zu Aminosäure-Änderige: {variants}.",
-    "no_protein_variants": "Die Varianti verändered s Protein nöd.",
     "role": {
-      "general": "Stell der vor, du bisch e Wüsseschaftler und versuechsch z erkläre, was dä Fund chönnt bedeute.\nSchriib e leichtherzigi Reflexion uf Schwiizerdütsch— halb wüsseschaftlichs Gedankespiel, halb humorvolli Spekulation — maximal 5 Sätz.\nFokusier vor allem uf d überraschendi Mischung vo Spezies i dä BLAST-Treffer und uf die schräge Verbindige, wo mer chönnt zie.\nWenns passt, chasch höchstens ei Anspielig uf d'Schwiiz, d ETH Züri oder möglicha NEXUS-Projäkt mache — aber nur, wenn s vo de Spezies inspiriert wird.\nDr Ton söll überleitig, leicht schelmisch und guet verständlich für alli sii.\nVermeid Fantasie-Gschichtli, aber erlaube dir spielerischi Gedankesprüng, wo Neugier wecke.",
-      "examples": "Stell der vor, du bisch e Wüsseschaftler und versuechsch z erkläre, was dä Fund chönnt bedeute.\nSchriib e wissenschaftlichi Reflexion uf Schwiizerdütsch, maximal 5 Sätz.\nFokusier uf das konkrete Sequenz-Stück und sini Varianti, nöd uf d Sequenzier-Demo.\nDenk dra: Das isch für e edukativi Demo — drum söll dr Ton klar, überleitig und verständlich für alli sii."
-    }
-}
+      "general": "Stell der vor, du bisch e Wissenschaftler: Wie würdest du {username} erläitere, was die überraschendi Finde chönnte bedeute?\nSchrieb e locker-lustigi Reflexion – es bitzli Wissenschaft, es bitzli Schmunzle – höchstens 5 Sätz.\nFokusier di vor allem uf d überraschendi Mix vo Spezies i de BLAST-Treffere und uf d schräge Verbindige, wo das chönnt andeute.\nRed {username} direkt aa.\nWenn’s passt, darf au mal es kleiner Augenzwinkere z Schwiiz, zur ETH Zürich oder zu mögliche NEXUS-Projäkt im Bereich Personalisierti Gsundheit debii sii – aber nur, wenn d Spezies s irgndwie inspiriert.\nD Ton soll überleitig, es bitzli schelmisch und trotzdem für alli verständlich sii.\nVermeid Fantasy-Gschichte, aber mach gern verspielti Gedankesprünge, wo Neugier wecke.",
+      "examples": "Stell der vor, du bisch e Wissenschaftler: Wie würdest du {username} erläitere, was die Finde chönnte bedeute?\nSchrieb e wissenschaftligi Reflexion i höchstens 5 Sätz, und red {username} direkt aa.\nFokusier di druf, was die Sequenz und ire Variante impliziere – nöd uf s Sequenzier-Setup.\nDenk dra: Das isch für es Bildungs-Demo, drum halt d Ton klar, überleitig und für alli verständlich."
+    },
+    "function_phrase": {
+      "EGFR": "Das Gen codiert für de epidermale Wachstumsfaktor-Rezeptor, en Kinase, wo Zellwachstum und -teilung steuert. ",
+      "CFTR": "Das Gen codiert für en Chlorid-Kanal, wo wichtig isch für d Flüssigkeitstransport i de Lunge und in andere Gewebe. Variante hie chönd zystische Fibrose uslöse, will si de Kanal-Funktion schwäche oder ganz abstelle. ",
+      "CYP2C9": "Das Gen codiert für es Enzym, wo Warfarin abbaut – es häufigs Blutverdünner. Variante chönd bestimme, wie schnell s Medikament abbroche wird, und so d Dosierig beeinflusse. ",
+      "VKORC1": "Das Gen codiert für s Vitamin-K-Epoxid-Reduktase-Komplex-Protein 1, s Ziel vom Medikament Warfarin. Variante chönd d Empfindlichkeit ggü. Warfarin verändere, will si s Vitamin-K-Recycling störe. ",
+      "Spike": "S RBD vo dr SARS-CoV-2-Spike-Protein bindet an de ACE2-Rezeptor i menschliche Zelle und erleichtert so s Iidriinge vom Virus. "
+    },
+    "mutation_phrase": {
+      "EGFR": "Bi Krebserkrankige het das Gen oft aktivierendi Substitutione wie **p.G719S** i Exon 18 oder chliini Deletione i Exon 19, wo d Kinase ständig „aagstellt“ bleibt.",
+      "CFTR": "Zum Bispiel: **p.G551D** sorgt für en Kanal, wo viel z selten uufgoht (Gating-Defekt), während **p.R553*** s Protein abchürzt und d Funktion komplett eliminiert. ",
+      "CYP2C9": "Variante wie **CYP2C9 p.I359L** oder **p.D360E** verlangsame dr Abbau vom Medikament – drum sind Standard-Dosige teilwiis z stark oder z schwach. Zusätzlich chönd Variante im **VKORC1**-Gen, wie **p.V29L**, s Vitamin-K-Recycling verschiebe und so d Warfarin-Empfindlichkeit reduziere. ",
+      "VKORC1": "Variante wie **VKORC1 p.V29L** chönd s Vitamin-K-Recycling verschiebe, d Warfarin-Empfindlichkeit reduziere und meh Dosig nötig mache. Usgangsvariant im **CYP2C9**-Gen, wie **p.I359L** oder **p.D360E**, verlangsame den Abbau – und mache drum Standard-Dosige z stark oder z schwach. ",
+      "Spike": "Variante im Verglich zur Wuhan-Variante chönd Übertragbarkeit und Immunflucht verändere. Bestimmti SARS-CoV-2-Sublineage traget charakt. „Fingerprints“ – zum Bispiel:\n* Alpha (B.1.1.7, UK, End 2020): N501Y, wo d ACE2-Bindig stärkt. Teilwiis mit S494P i spötere Sublineage.\n* Beta (B.1.351, Südafrika, End 2020): K417N, E484K, N501Y – starki Immunflucht (E484K) + höhere ACE2-Affinität (N501Y).\n* Gamma (P.1, Brasilien, Angfang 2021): K417T, E484K, N501Y – ähnlech wie Beta, aber mit K417T statt K417N. Immunflucht + Übertragbarkeit.\n* Delta (B.1.617.2, Indien, Summer 2021): L452R, T478K – stärkt Bindig an ACE2 und Immunflucht. Teilwiis mit E484Q i verwandte Linie (B.1.617.1/Kappa).\n* Omikron (B.1.1.529, Südafrika, Winter 2021): Viel Mutationen i RBD (~15 Substitutione). Kern-Fingerprint: K417N, N440K, G446S, S477N, T478K, E484A, Q493R, G496S, Q498R, N501Y, Y505H. Starchi Immunflucht und verändereti Bindig. \n* Sublineage (BA.1, BA.2, BA.5, XBB, EG.5, JN.1, KP.2, etc.) traget no meh Detail-Varianten. \n\nWäge dr Nähe vo de Mutatione cha me Sublineage i Abwasser-Probe identifiziere – das isch au Teil vo de schweizweite Surveillance, wo NEXUS debii isch."
+    },
+    "variants": "I däm Fall deckt dr Read d Codons {codon_range} ab, mit markante Variante: {variants}. {protein_phrase}",
+    "domains": ", speziell im Bereich vo dr {domains}-Domäne",
+    "no_variants": "I däm Fall deckt dr Read d Codons {codon_range} ab, wo dr kanonische Sequenz entspricht.",
+    "sars_protein_variants": "Die Mutationen bilde e Fingerprint: {variants}, während d andere abdeckte Codons dr Wuhan-Strang entspräche.",
+    "protein_variants": "Uf Proteinebene füehrt das zue Aminosäure-Änderige: {variants}.",
+    "no_protein_variants": "Die Variante verändere d Protein-Sequenz nöd."
+  }
 }
   

@@ -314,8 +314,8 @@ def query_sequence(seq):
         aln_end_codon= (aln_infos["aln_start"]- cds_start + aln_infos["align_len"] -1)//3
         domains_hit = {k:v for k,v in domains.items() if overlap((v["start_codon"], v["end_codon"]), (aln_start_codon, aln_end_codon))}
         var, protein_var=get_variants(aln, name)
-        return example, gene, [format_nt_variant(v) for v in var], protein_var, domains_hit, json_data
-    return "general", "unknown", [], [], {}, {}
+        return example, gene, [format_nt_variant(v) for v in var], protein_var, domains_hit, (aln_start_codon, aln_end_codon), json_data
+    return "general", "unknown", [], [], {}, (0, 0), {}
 
 def overlap(interval1, interval2):
     return interval1[0] <= interval2[1] and interval2[0] <= interval1[1]
@@ -348,7 +348,7 @@ if __name__ == "__main__":
         # name, aln = find_best_match(seq, percent_identity=0.5)
         # gene= EXAMPLES.get(name, {}).get("gene", "unknown")
 
-        name, gene, var, protein_var, domains, json_data = query_sequence(seq)
+        name, gene, var, protein_var, domains, codon_range, json_data = query_sequence(seq)
         print(f"===================\nBest match: {name}")
         if name != "general":
             # var, (protein_var, domains)=get_variants(aln, name)
@@ -358,6 +358,7 @@ if __name__ == "__main__":
             print(f'variants={", ".join(var)}')
             print(f'protein variants={", ".join(protein_var)}'),
             print(f'domains={domains}')
+            print(f'codon_range={codon_range}')
             print('aln=\n'+'\n'.join([aln['qseq'], aln['midline'], aln['hseq']])),
 
         #print(f'aa_seq_q={aa_seq_q}'),

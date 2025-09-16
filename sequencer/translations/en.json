@@ -24,22 +24,33 @@
       "general": "NEXUS personalized health at ETH Zurich presents a LEGO DNA sequencing demo, where guests are building LEGO stacks, which are scanned and interpreted as DNA sequences. {username} just sequenced the following read:\n{seq}",
       "examples": "As part of an educational demo presented by NEXUS personalized health of ETH Zurich, {username} just sequenced the following cDNA fragment:\n{seq}"
     },
-    "domains": ", specifically a part of the {domains} domain",
-    "examples": {
+    "main_text": {
       "general": "Surprisingly, a BLAST search shows similarities to genetic material from the following species: {species}.",
-      "egfr": "In fact, the sequence aligns to {gene}{domain_phrase}. This gene often carries activating substitutions like **p.G719S** in exon 18, or small deletions in exon 19 that keep the kinase switched 'on'.",
-      "cftr": "In fact, the sequence aligns to {gene}{domain_phrase}, where even single-letter changes can cause cystic fibrosis. For example, **p.G551D** creates a channel that opens too rarely, while **p.R553*** truncates the protein entirely.",
-      "warfarin": "In fact, the sequence aligns to the {gene}{domain_phrase} gene, which influences how people respond to warfarin. Variants like **VKORC1 p.V29L** can shift vitamin K recycling, while **CYP2C9 p.I359L** or **p.D360E** slow drug breakdown — making standard doses either too strong or too weak.",
-      "sars2_rbd":"In fact, the sequence aligns to the SARS‑CoV‑2 spike protein {gene}{domain_phrase}. In wastewater, small RNA fragments carry mutational 'fingerprints'—patterns like **E484Q** or **S477N/S477G**. **E484Q** tends to point toward **Kappa‑like** viruses (B.1.617.1), while **S477N** is characteristic of **Iota‑like** lineages (B.1.526); **S477G** is less distinctive on its own and needs additional markers. With these fingerprints, we can often classify the virus even before clinical genomes confirm it."
+      "examples": "In fact, the sequence aligns to {gene}{domain_phrase}.\n{function_phrase}\n{mutation_phrase}"
     },
-    "variants": "In this case, the sequence contains notable variants: {variants}. {protein_phrase}",
-    "no_variants": "In this case, the read corresponds to the canonical sequence.",
-    "sars_protein_variants": "These mutations form a fingerprint: {variants}.",
+     "role": {
+        "general": "Now, imagine you're a scientist, explaining what this curious finding might suggest.\nWrite a light-hearted reflection—part scientific musing, part humorous speculation, at most 5 sentences.\nFocus mainly on the surprising mix of species in the BLAST hits, and the odd connections they might suggest. Address {username} directly.\nIf it fits naturally, you may include up to one playful nod each to Switzerland, ETH Zurich, or to potential personalized-health-related NEXUS projects — but only when the species inspire it.\nThe tone should be thoughtful, slightly whimsical, and accessible to the general public.\nAvoid fantasy storytelling, but feel free to make playful leaps in logic that spark curiosity.",
+        "examples": "Now, imagine you're a scientist, explaining what this curious finding might suggest.\nWrite a scientific reflection, at most 5 sentences, directly addressing {username}.\nFocus on what this specific sequence and its variants imply, not the sequencing setup.\nRemember this is for an educational demo, so keep the tone clear, thoughtful, and accessible to the general public."
+    },
+    "function_phrase":{
+      "EGFR": "This gene encodes the epidermal growth factor receptor, a kinase that regulates cell growth and division. ",
+      "CFTR": "This gene encodes a chloride channel important for fluid transport in lungs and other tissues. Variants here often cause cystic fibrosis by reducing or eliminating channel function. ",
+      "CYP2C9": "This gene encodes an enzyme that metabolizes warfarin, a common blood thinner. Variants here can affect how quickly the drug is broken down, influencing dosage requirements. ",
+      "VKORC1": "This gene encodes the vitamin K epoxide reductase complex subunit 1, which is the target of warfarin. Variants here can alter sensitivity to the drug by changing vitamin K recycling. ",
+      "Spike": "The RBD of the SARS-CoV-2 spike protein binds to the ACE2 receptor on human cells to facilitate viral entry. "
+    },
+    "mutation_phrase": {
+      "EGFR": "In Cancer, this gene often carries activating substitutions like **p.G719S** in exon 18, or small deletions in exon 19 that keep the kinase switched 'on'.",
+      "CFTR": "For example, **p.G551D** creates a channel that opens too rarely (gating defect), while **p.R553*** truncates the protein, eliminating function. ",
+      "CYP2C9": "Variants like **CYP2C9 p.I359L** or **p.D360E** slow drug breakdown — making standard doses either too strong or too weak. In addition, variants in the **VKORC1** gene, such as  **p.V29L** can shift vitamin K recycling, also reducing warfarin sensitivity. ",
+      "VKORC1": "Variants like **VKORC1 p.V29L** can shift vitamin K recycling, reducing warfarin sensitivity, requiring higher doses. In addition, variants in the **CYP2C9** gene, such as **p.I359L** or **p.D360E** can slow drug breakdown — making standard doses either too strong or too weak. ",
+      "Spike": "Variants compared to the canonical Wuhan strain can alter transmissibility and immune evasion.  Specific sublineages of SARS-Cov2 carry 'fingerprints'—patterns, e.g.:\n* Alpha (B.1.1.7, UK, late 2020): N501Y which increases ACE2 affinity. Sometimes accompanied by S494P in later sublineages.\n* Beta (B.1.351, South Africa, late 2020): K417N, E484K, N501Y Triple fingerprint: strong immune escape (E484K) + higher ACE2 affinity (N501Y). Distinctive early immune escape variant. \n* Gamma (P.1, Brazil, early 2021): K417T, E484K, N501Y - Same positions as Beta, but K417T instead of K417N. Immune escape + transmissibility.\n* Delta (B.1.617.2, India, mid-2021): L452R, T478K - Enhanced ACE2 binding and immune evasion. Occasionally includes E484Q in related lineages (e.g., B.1.617.1/Kappa).\n* Omicron (B.1.1.529, South Africa, late 2021): Large RBD mutation cluster (~15 substitutions). Core Omicron RBD fingerprint: K417N, N440K, G446S, S477N, T478K, E484A, Q493R, G496S, Q498R, N501Y, Y505H. Strong immune evasion and altered receptor binding. Sublineages (BA.1, BA.2, BA.5, XBB, EG.5, JN.1, KP.2, etc.) carry further refinements like F486V/I/P, R346T, L455S/F, V445P, driving ongoing immune escape. Since the mutations are close together, these fingerprints can be used to identify virus substrains from degenerated samples in wastewater, for population surveillance. Since NEXUS is involved in this swiss wide effort, lets suppose the read came from wastewater surveillance. Which sublineages could the read originate from? Is the read for a sublineage, or would we expected further variants within the range?"
+    },
+    "variants": "In this case, the read covers codons {codon_range} with notable variants: {variants}. {protein_phrase}",
+    "domains": ", specifically a part of the {domains} domain",
+    "no_variants": "In this case, the read covers codons {codon_range}, corresponding to the canonical sequence.",
+    "sars_protein_variants": "These mutations form a fingerprint: {variants}, while the remaining covered codons correspond to the Wuhan strain.",
     "protein_variants": "At the protein level, this results in amino acid changes: {variants}.",
-    "no_protein_variants": "These variants do not alter the protein sequence.",
-    "role": {
-        "general": "Now, imagine you're a scientist, explaining what this curious finding might suggest.\nWrite a light-hearted reflection—part scientific musing, part humorous speculation, at most 5 sentences.\nFocus mainly on the surprising mix of species in the BLAST hits, and the odd connections they might suggest.\nIf it fits naturally, you may include up to one playful nod each to Switzerland, ETH Zurich, or to potential personalized-health-related NEXUS projects — but only when the species inspire it.\nThe tone should be thoughtful, slightly whimsical, and accessible to the general public.\nAvoid fantasy storytelling, but feel free to make playful leaps in logic that spark curiosity.",
-        "examples": "Now, imagine you're a scientist, explaining what this curious finding might suggest.\nWrite a scientific reflection, at most 5 sentences.\nFocus on what this specific sequence and its variants imply, not the sequencing setup.\nRemember this is for an educational demo, so keep the tone clear, thoughtful, and accessible to the general public."
-    }
+    "no_protein_variants": "These variants do not alter the protein sequence."   
   }
 }
